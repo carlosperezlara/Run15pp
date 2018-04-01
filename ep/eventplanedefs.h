@@ -68,6 +68,8 @@ TH2F *hEVC[3][32];
 //=====================================
 void CreateHistograms() {
   // BB3 FV1 EX9 CA1 =14
+  TString tit14[14] = {"BBA","BBB","BB", "FV", "EX0","EX1","EX2",
+		       "EX3","EX4","EX5","EX6","EX7","EX8","CA"};
   hQx = new TH2F("Qx","", 14,-0.5,13.5, 500,-100,+100);
   hQy = new TH2F("Qy","", 14,-0.5,13.5, 500,-100,+100);
   hQM = new TH2F("QM","", 14,-0.5,13.5, 500,0,+1000);
@@ -78,6 +80,18 @@ void CreateHistograms() {
   hPSI0 = new TH2F("PSI0","", 14,-0.5,13.5, 100, 0.0, TMath::TwoPi());
   hPSI1 = new TH2F("PSI1","", 14,-0.5,13.5, 100, 0.0, TMath::TwoPi());
   hPSI2 = new TH2F("PSI2","", 14,-0.5,13.5, 100, 0.0, TMath::TwoPi());
+  for(int i=0; i!=14; ++i) {
+    hQx->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hQy->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hQM->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hPsiC->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hPsiS->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hQred0->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hQred1->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hPSI0->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hPSI1->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+    hPSI2->GetXaxis()->SetBinLabel(i+1,tit14[i]);
+  }
     
   hBBCX = new TH2F("BBCX","", 100,-30,30, 100,-30,30);
   hBBCY = new TH2F("BBCY","", 100,-30,30, 100,-30,30);
@@ -95,26 +109,33 @@ void CreateHistograms() {
   // FVBB FVCA
   // EX0BB EX0CA EX0FV (x9)
   // = 32
-  TString title35[32] = {";BBSubA;BB", ";BBSubB;BB", ";BBSubA;BBSubB",
+  TString title32[32] = {";BBSubA;BB", ";BBSubB;BB", ";BBSubA;BBSubB",
 			 ";FV;BB",  ";FV;CA",
-			 ";EX0;BB", ";EX0;CA", ";EX0;FV",
-			 ";EX1;BB", ";EX1;CA", ";EX1;FV",
-			 ";EX2;BB", ";EX2;CA", ";EX2;FV",
-			 ";EX3;BB", ";EX3;CA", ";EX3;FV",
-			 ";EX4;BB", ";EX4;CA", ";EX4;FV",
-			 ";EX5;BB", ";EX5;CA", ";EX5;FV",
-			 ";EX6;BB", ";EX6;CA", ";EX6;FV",
-			 ";EX7;BB", ";EX7;CA", ";EX7;FV"};
+			 ";EX0;BB", ";EX1;BB", ";EX2;BB", ";EX3;BB",
+			 ";EX4;BB", ";EX5;BB", ";EX6;BB", ";EX7;BB", ";EX8;BB"
+			 ";EX0;FV", ";EX1;FV", ";EX2;FV", ";EX3;FV",
+			 ";EX4;FV", ";EX5;FV", ";EX6;FV", ";EX7;FV", ";EX8;FV"
+			 ";EX0;CA", ";EX1;CA", ";EX2;CA", ";EX3;CA",
+			 ";EX4;CA", ";EX5;CA", ";EX6;CA", ";EX7;CA", ";EX8;CA"};
   for(int i=0; i!=3; ++i)
     for(int j=0; j!=32; ++j)
-      hEVC[i][j] = new TH2F( Form("EVC%d_DET%d",i,j), title35[j].Data(),
+      hEVC[i][j] = new TH2F( Form("EVC%d_DET%d",i,j), title32[j].Data(),
 			     100,0,TMath::TwoPi(), 100,0,TMath::TwoPi() );
 
   // 32 +
   // EX04 EX15 EX26 EX37
   // = 36
+  TString title36[36] = {"BBA-BB","BBB-BB","BBA-BBB","FB-BB","FV-CA",
+			 "EX0-BB","EX1-BB","EX2-BB","EX3-BB","EX4-BB","EX5-BB","EX6-BB","EX7-BB","EX8-BB",
+			 "EX0-FV","EX1-FV","EX2-FV","EX3-FV","EX4-FV","EX5-FV","EX6-FV","EX7-FV","EX8-FV",
+			 "EX0-CA","EX1-CA","EX2-CA","EX3-CA","EX4-CA","EX5-CA","EX6-CA","EX7-CA","EX8-CA",
+			 "EX0-EX4","EX1-EX5","EX2-EX6","EX3-EX7"};
   hResD = new TH2F("ResD","", 36,-0.5,35.5, 100,-1.1,+1.1);
   hRes = new TProfile("Res","", 36,-0.5,35.5, -1.1,+1.1);  
+  for(int i=0; i!=36; ++i) {
+    hResD->GetXaxis()->SetBinLabel(i+1,title36[i]);
+    hRes->GetXaxis()->SetBinLabel(i+1,title36[i]);
+  }
 }
 //=====================================
 void SaveHistograms() {
@@ -145,7 +166,7 @@ void SaveHistograms() {
   
   hRes->Write();
   hResD->Write();
-  for(int i=0; i!=3; ++i) for(int j=0; j!=35; ++j) hEVC[i][j]->Write();
+  for(int i=0; i!=3; ++i) for(int j=0; j!=32; ++j) hEVC[i][j]->Write();
 }
 //=====================================
 void LoadCalibs(TString run) {
@@ -185,7 +206,7 @@ void LoadCalibs(TString run) {
   int tmp;
   ifstream fin;
   //========
-  fin.open( Form("eventplane/calib/bb%s.dat1",run.Data()) );
+  fin.open( Form("out/calib/bb%s.dat1",run.Data()) );
   fin >> tmp; // ndet
   if(fin.good()) {
     for(int idet=0; idet!=kBBN; ++idet) {
@@ -194,7 +215,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/fv%s.dat1",run.Data()) );
+  fin.open( Form("out/calib/fv%s.dat1",run.Data()) );
   fin >> tmp; // ndet
   if(fin.good()) {
     for(int idet=0; idet!=kFVN; ++idet) {
@@ -203,7 +224,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/ca%s.dat1",run.Data()) );
+  fin.open( Form("out/calib/ca%s.dat1",run.Data()) );
   fin >> tmp; // ndet
   if(fin.good()) {
     for(int idet=0; idet!=kCAN; ++idet) {
@@ -212,7 +233,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/ex%s.dat1",run.Data()) );
+  fin.open( Form("out/calib/ex%s.dat1",run.Data()) );
   fin >> tmp; // ndet
   if(fin.good()) {
     for(int idet=0; idet!=kEXN; ++idet) {
@@ -222,7 +243,7 @@ void LoadCalibs(TString run) {
   }
   fin.close();
   //========
-  fin.open( Form("eventplane/calib/bb%s.dat2",run.Data()) );
+  fin.open( Form("out/calib/bb%s.dat2",run.Data()) );
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kBBN; ++idet) {
@@ -232,7 +253,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/fv%s.dat2",run.Data()) );
+  fin.open( Form("out/calib/fv%s.dat2",run.Data()) );
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kFVN; ++idet) {
@@ -242,7 +263,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/ca%s.dat2",run.Data()) );
+  fin.open( Form("out/calib/ca%s.dat2",run.Data()) );
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kCAN; ++idet) {
@@ -252,7 +273,7 @@ void LoadCalibs(TString run) {
     }
   }
   fin.close();
-  fin.open( Form("eventplane/calib/ex%s.dat2",run.Data()) );
+  fin.open( Form("out/calib/ex%s.dat2",run.Data()) );
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kEXN; ++idet) {
@@ -439,7 +460,7 @@ void SaveCalibFiles(TString run) {
   ofstream fout;
   TH1D *hpx, *hpy;
   //==
-  fout.open( Form("eventplane/calib/bb%s.dat1",run.Data()) );
+  fout.open( Form("out/calib/bb%s.dat1",run.Data()) );
   fout << kBBN << endl;
   for(int idet=0; idet!=kBBN; ++idet) {
     hpx = hQx->ProjectionY( Form("qx_bb%d",idet), 1+idet, 1+idet );
@@ -449,7 +470,7 @@ void SaveCalibFiles(TString run) {
   }
   fout.close();
   //==
-  fout.open( Form("eventplane/calib/fv%s.dat1",run.Data()) );
+  fout.open( Form("out/calib/fv%s.dat1",run.Data()) );
   fout << kFVN << endl;
   hpx = hQx->ProjectionY( "qx_fv", 4, 4 );
   hpy = hQy->ProjectionY( "qy_fv", 4, 4 );
@@ -457,7 +478,7 @@ void SaveCalibFiles(TString run) {
   fout << hpx->GetRMS()  << " " << hpy->GetRMS() << endl;
   fout.close();
   //==
-  fout.open( Form("eventplane/calib/ex%s.dat1",run.Data()) );
+  fout.open( Form("out/calib/ex%s.dat1",run.Data()) );
   fout << kEXN << endl;
   for(int idet=0; idet!=9; ++idet) {
     hpx = hQx->ProjectionY( Form("qx_ex%d",idet), 5+idet, 5+idet );
@@ -466,9 +487,9 @@ void SaveCalibFiles(TString run) {
     fout << hpx->GetRMS()  << " " << hpy->GetRMS() << endl;
   }
   fout.close();
-  fout.open( Form("eventplane/calib/ca%s.dat1",run.Data()) );
+  fout.open( Form("out/calib/ca%s.dat1",run.Data()) );
   fout << kCAN << endl;
-  for(int idet=0; idet!=3; ++idet) {
+  for(int idet=0; idet!=kCAN; ++idet) {
     hpx = hQx->ProjectionY( Form("qx_ca%d",idet), 14+idet, 14+idet );
     hpy = hQy->ProjectionY( Form("qy_ca%d",idet), 14+idet, 14+idet );
     fout << hpx->GetMean() << " " << hpy->GetMean() << " ";
@@ -478,7 +499,7 @@ void SaveCalibFiles(TString run) {
 
   //=======
 
-  fout.open( Form("eventplane/calib/bb%s.dat2",run.Data()) );
+  fout.open( Form("out/calib/bb%s.dat2",run.Data()) );
   fout << kMaxOrder << endl;
   for(int idet=0; idet!=kBBN; ++idet) {
     for(int iord=0; iord!=kMaxOrder; ++iord) {
@@ -489,7 +510,7 @@ void SaveCalibFiles(TString run) {
   }
   fout.close();
   //==
-  fout.open( Form("eventplane/calib/fv%s.dat2",run.Data()) );
+  fout.open( Form("out/calib/fv%s.dat2",run.Data()) );
   fout << kMaxOrder << endl;
   for(int iord=0; iord!=kMaxOrder; ++iord) {
     fout << +2.0/(iord+1.0)*hPsiC->GetBinContent(4,iord+1) << " ";
@@ -498,7 +519,7 @@ void SaveCalibFiles(TString run) {
   fout << endl;
   fout.close();
   //==
-  fout.open( Form("eventplane/calib/ex%s.dat2",run.Data()) );
+  fout.open( Form("out/calib/ex%s.dat2",run.Data()) );
   fout << kMaxOrder << endl;
   for(int idet=0; idet!=kEXN; ++idet) {
     for(int iord=0; iord!=kMaxOrder; ++iord) {
@@ -509,7 +530,7 @@ void SaveCalibFiles(TString run) {
   }
   fout.close();
   //==
-  fout.open( Form("eventplane/calib/ca%s.dat2",run.Data()) );
+  fout.open( Form("out/calib/ca%s.dat2",run.Data()) );
   fout << kMaxOrder << endl;
   for(int idet=0; idet!=kCAN; ++idet) {
     for(int iord=0; iord!=kMaxOrder; ++iord) {
@@ -519,5 +540,6 @@ void SaveCalibFiles(TString run) {
     fout << endl;
   }
   fout.close();
+  std::cout << "Calibration files have been saved." << std::endl;
   //==
 }

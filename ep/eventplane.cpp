@@ -3,10 +3,9 @@
 //bool fVerbosity = true;
 bool fVerbosity = false;
 
+//==================
 void CreateQCA() {
   q2ca[0].Reset();
-  //q2ca[1].Reset();
-  //q2ca[2].Reset();
   uint ntrks = pTRKcid->size();
   for(uint itrk=0; itrk!=ntrks; ++itrk) {
     float pt   = pTRKpt->at(itrk);
@@ -14,21 +13,16 @@ void CreateQCA() {
     float dphi = pTRKpc3sdphi->at(itrk);
     float dz   = pTRKpc3sdz->at(itrk);
     float zed  = pTRKzed->at(itrk);
+    int fbit = pTRKqua->at(itrk);
+    if(fbit!=63) continue;
+    if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
     if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
     if(TMath::Abs(dphi)>3) continue;
     if(TMath::Abs(dz)>3) continue;
     q2ca[0].Fill(phi);
-    //if(pt>0.5&&pt<3) {
-    //  if(phi>1.5 && phi<4.5) {
-    //	q2ca[0].Fill(phi);
-    //      } else {
-    //	q2ca[1].Fill(phi);
-    //      }
-    //}
   }
-  //q2ca[2] = q2ca[0] + q2ca[1];
 }
-
+//==================
 int main(int argc, char *argv[]){
   if(argc<3) {
     std::cout << "launch with args RUN NEVS" << std::endl;
@@ -57,12 +51,12 @@ int main(int argc, char *argv[]){
   TH2F *hBeta = new TH2F("Beta",";p [GeV/c];[ns]", 300,0,3,1800,-100,+500);
 
   TProfile2D *hV2[2];
-  TH2F *hDP[2];
-  TH2F *hDPPE[2];
   hV2[0] = new TProfile2D("hV2_E","", 13,-0.5,12.5, 30,0,3, -1.1,+1.1);
   hV2[1] = new TProfile2D("hV2_W","", 13,-0.5,12.5, 30,0,3, -1.1,+1.1);
+  TH2F *hDP[2];
   hDP[0] = new TH2F("DPhiE", "", 13,-0.5,12.5, 100,-TMath::TwoPi(),+TMath::TwoPi());
   hDP[1] = new TH2F("DPhiW", "", 13,-0.5,12.5, 100,-TMath::TwoPi(),+TMath::TwoPi());
+  TH2F *hDPPE[2];
   hDPPE[0] = new TH2F("DPhiER","", 13,-0.5,12.5, 100,-TMath::TwoPi(),+TMath::TwoPi());
   hDPPE[1] = new TH2F("DPhiWR","", 13,-0.5,12.5, 100,-TMath::TwoPi(),+TMath::TwoPi());
 
@@ -81,7 +75,7 @@ int main(int argc, char *argv[]){
   TLorentzVector ii,jj,pp;
   float RndmPSI = 0;
   for(Long64_t i1=0; i1<nevt; ++i1) {
-    if(i1%2000000 == 0) {
+    if(i1%20000 == 0) {
       std::cout << "Event:  " << i1 << "/" << nevt;
       std::cout << Form(" (%.1f)",i1*100.0/nevt) << std::endl;
     }
@@ -121,7 +115,8 @@ int main(int argc, char *argv[]){
 
     CreateQCA();
 
-    std::cout << " || CA " << q2ca[0].NP() << " " << q2ca[1].NP();
+    /*
+    std::cout << " || CA " << q2ca[0].NP();
     std::cout << " || BB " << q2bb[0].NP() << " " << q2bb[1].NP();
     std::cout << " || FV " << q2fv[0].NP();
     std::cout << " || EX " << q2ex[0].NP() << " " << q2ex[1].NP();
@@ -129,6 +124,7 @@ int main(int argc, char *argv[]){
     std::cout << " " << q2ex[3].NP() << " " << q2ex[4].NP();
     std::cout << " " << q2ex[5].NP() << " " << q2ex[6].NP();
     std::cout << " " << q2ex[6].NP() << " " << q2ex[7].NP() << std::endl;
+    */
 
     // histograms 
     hVtxZ->Fill( vtxZ );
@@ -184,6 +180,7 @@ int main(int argc, char *argv[]){
     GetEPbb();
     GetEPfv();
     GetEPex();
+    GetEPca();
     if(fVerbosity) std::cout << "===> STEP 4 [DONE]" << endl;
     //=================================
     //=================================
@@ -207,14 +204,6 @@ int main(int argc, char *argv[]){
       if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
       if(TMath::Abs(dphi)>3) continue;
       if(TMath::Abs(dz)>3) continue;
-
-      if(pt>0.5&&pt<3) {
-	if(phi>1.5 && phi<4.5) {
-	  q2ca[0].Fill(phi);
-	} else {
-	  q2ca[1].Fill(phi);
-	}
-      }
 
       hEp->Fill( ep );
       hChi2->Fill( chi2 );
@@ -279,7 +268,7 @@ int main(int argc, char *argv[]){
   SaveCalibFiles(run);
 
   //======== SAVING OUTPUT
-  TString ooo = Form("eventplane/myResults_%s.root",run.Data());
+  TString ooo = Form("out/myResults_%s.root",run.Data());
   std::cout << "SAVING... " << ooo.Data() << std::endl;
   TFile* f2 = new TFile( ooo.Data(),"RECREATE"); 
   hEvents->Write();

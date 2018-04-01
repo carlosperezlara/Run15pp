@@ -1,25 +1,18 @@
-std::cout << "HERE!A" << std::endl;
 hBBCX->Fill( q2bb[0].X(), q2bb[1].X() );
-std::cout << "HERE!A" << std::endl;
 hBBCY->Fill( q2bb[0].Y(), q2bb[1].Y() );
 hBBCL->Fill( TMath::Sqrt( q2bb[0].X()*q2bb[0].X()+q2bb[0].Y()*q2bb[0].Y() ),
 	     TMath::Sqrt( q2bb[1].X()*q2bb[1].X()+q2bb[1].Y()*q2bb[1].Y() ) );
-std::cout << "HERE!A" << std::endl;
 hBBCH->Fill( TMath::Sqrt( (q2bb[0].X()*q2bb[0].X()+q2bb[0].Y()*q2bb[0].Y())/q2bb[0].M() ),
 	     TMath::Sqrt( (q2bb[1].X()*q2bb[1].X()+q2bb[1].Y()*q2bb[1].Y())/q2bb[1].M() ) );
-std::cout << "HERE!A" << std::endl;
 hBBCS->Fill( q2bb[0].Y()/(q2bb[0].X()+1e-8), q2bb[1].Y()/(q2bb[0].X()+1e-8) );
 hBBCM->Fill( q2bb[0].M(), q2bb[1].M() );
 hBBCNP->Fill( q2bb[0].NP(), q2bb[1].NP() );
-std::cout << "HERE!A" << std::endl;
 hBBCatan01->Fill( TMath::ATan2( q2bb[0].Y(), q2bb[0].X() )/2.0,
 		  TMath::ATan2( q2bb[1].Y(), q2bb[1].X() )/2.0 );
 hBBCatan02->Fill( TMath::ATan2( q2bb[0].Y(), q2bb[0].X() )/2.0,
 		  TMath::ATan2( q2bb[2].Y(), q2bb[2].X() )/2.0 );
 hBBCatan12->Fill( TMath::ATan2( q2bb[1].Y(), q2bb[1].X() )/2.0,
 		  TMath::ATan2( q2bb[2].Y(), q2bb[2].X() )/2.0 );
-
-std::cout << "HERE!A" << std::endl;
 
 hQM->Fill(0.0,q2bb[0].M());
 hQM->Fill(1.0,q2bb[1].M());
@@ -66,8 +59,6 @@ hPSI0->Fill( 11., q2ex[7].Psi2Pi() );
 // PSI 12 not stored yet
 hPSI0->Fill( 13., q2ca[0].Psi2Pi() );
 
-std::cout << "HERE!" << std::endl;
-
 // BBAC BBCBC BBAB                                                                                                                                                            
 // FVBB FVCA                                                                                                                                                                  
 // EX0BB EX0CA EX0FV (x9)                                                                                                                                                     
@@ -80,31 +71,31 @@ hEVC[0][ 3]->Fill( q2fv[0].Psi2Pi(), q2bb[2].Psi2Pi() );
 hEVC[0][ 4]->Fill( q2fv[0].Psi2Pi(), q2ca[0].Psi2Pi() );
 //-
 hEVC[0][ 5]->Fill( q2ex[0].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][ 6]->Fill( q2ex[0].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][ 7]->Fill( q2ex[0].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][ 8]->Fill( q2ex[1].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][ 9]->Fill( q2ex[1].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][10]->Fill( q2ex[1].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][11]->Fill( q2ex[2].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][12]->Fill( q2ex[2].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][13]->Fill( q2ex[2].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][14]->Fill( q2ex[3].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][15]->Fill( q2ex[3].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][16]->Fill( q2ex[3].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][17]->Fill( q2ex[4].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][18]->Fill( q2ex[4].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][19]->Fill( q2ex[4].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][20]->Fill( q2ex[5].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][21]->Fill( q2ex[5].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][22]->Fill( q2ex[5].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][23]->Fill( q2ex[6].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][24]->Fill( q2ex[6].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][25]->Fill( q2ex[6].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[0][26]->Fill( q2ex[7].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[0][27]->Fill( q2ex[7].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[0][28]->Fill( q2ex[7].Psi2Pi(), q2fv[0].Psi2Pi() );
-//hEVC[0][29]->Fill( q2ex[8].Psi2Pi(), q2bb[2].Psi2Pi() );
-//hEVC[0][30]->Fill( q2ex[8].Psi2Pi(), q2ca[0].Psi2Pi() );
-//hEVC[0][31]->Fill( q2ex[8].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][ 6]->Fill( q2ex[1].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][ 7]->Fill( q2ex[2].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][ 8]->Fill( q2ex[3].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][ 9]->Fill( q2ex[4].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][10]->Fill( q2ex[5].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][11]->Fill( q2ex[6].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][12]->Fill( q2ex[7].Psi2Pi(), q2fv[0].Psi2Pi() );
+//hEVC[0][13]->Fill( q2ex[8].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][14]->Fill( q2ex[0].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][15]->Fill( q2ex[1].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][16]->Fill( q2ex[2].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][17]->Fill( q2ex[3].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][18]->Fill( q2ex[4].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][19]->Fill( q2ex[5].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][20]->Fill( q2ex[6].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][21]->Fill( q2ex[7].Psi2Pi(), q2fv[0].Psi2Pi() );
+//hEVC[0][22]->Fill( q2ex[8].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][23]->Fill( q2ex[0].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][24]->Fill( q2ex[1].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][25]->Fill( q2ex[2].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][26]->Fill( q2ex[3].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][27]->Fill( q2ex[4].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[0][28]->Fill( q2ex[5].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[0][29]->Fill( q2ex[6].Psi2Pi(), q2bb[2].Psi2Pi() );
+hEVC[0][30]->Fill( q2ex[7].Psi2Pi(), q2fv[0].Psi2Pi() );
+//hEVC[0][31]->Fill( q2ex[8].Psi2Pi(), q2ca[0].Psi2Pi() );
 
 

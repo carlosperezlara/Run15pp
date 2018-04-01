@@ -1,57 +1,57 @@
-hPSI2->Fill( 0.0, q2bb[0].Psi2Pi() );
-hPSI2->Fill( 1.0, q2bb[1].Psi2Pi() );
-hPSI2->Fill( 2.0, q2bb[2].Psi2Pi() );
-hPSI2->Fill( 3.0, q2fv[0].Psi2Pi() );
-hPSI2->Fill( 4.0, q2ex[0].Psi2Pi() );
-hPSI2->Fill( 5.0, q2ex[1].Psi2Pi() );
-hPSI2->Fill( 6.0, q2ex[2].Psi2Pi() );
-hPSI2->Fill( 7.0, q2ex[3].Psi2Pi() );
-hPSI2->Fill( 8.0, q2ex[4].Psi2Pi() );
-hPSI2->Fill( 9.0, q2ex[5].Psi2Pi() );
-hPSI2->Fill( 10., q2ex[6].Psi2Pi() );
-hPSI2->Fill( 11., q2ex[7].Psi2Pi() );
-hPSI2->Fill( 12., q2ex[8].Psi2Pi() );
-hPSI2->Fill( 13., q2ca[0].Psi2Pi() );
+hPSI2->Fill( 0.0, bbEP[0] );
+hPSI2->Fill( 1.0, bbEP[1] );
+hPSI2->Fill( 2.0, bbEP[2] );
+hPSI2->Fill( 3.0, fvEP[0] );
+hPSI2->Fill( 4.0, exEP[0] );
+hPSI2->Fill( 5.0, exEP[1] );
+hPSI2->Fill( 6.0, exEP[2] );
+hPSI2->Fill( 7.0, exEP[3] );
+hPSI2->Fill( 8.0, exEP[4] );
+hPSI2->Fill( 9.0, exEP[5] );
+hPSI2->Fill( 10., exEP[6] );
+hPSI2->Fill( 11., exEP[7] );
+hPSI2->Fill( 12., exEP[8] );
+hPSI2->Fill( 13., caEP[0] );
 
 // BBAC BBCBC BBAB
 // CAAC CABC CAAB
 // FVBB FVCA
 // EX0BB EX0CA EX0FV (x9)
 // = 32
-hEVC[2][ 0]->Fill( q2bb[0].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][ 1]->Fill( q2bb[1].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][ 2]->Fill( q2bb[0].Psi2Pi(), q2bb[1].Psi2Pi() );
+hEVC[2][ 0]->Fill( bbEP[0], bbEP[2] );
+hEVC[2][ 1]->Fill( bbEP[1], bbEP[2] );
+hEVC[2][ 2]->Fill( bbEP[0], bbEP[1] );
 //-
-hEVC[2][ 3]->Fill( q2fv[0].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][ 4]->Fill( q2fv[0].Psi2Pi(), q2ca[0].Psi2Pi() );
+hEVC[2][ 3]->Fill( fvEP[0], bbEP[2] );
+hEVC[2][ 4]->Fill( fvEP[0], caEP[0] );
 //-
-hEVC[2][ 5]->Fill( q2ex[0].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][ 6]->Fill( q2ex[0].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][ 7]->Fill( q2ex[0].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][ 8]->Fill( q2ex[1].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][ 9]->Fill( q2ex[1].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][10]->Fill( q2ex[1].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][11]->Fill( q2ex[2].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][12]->Fill( q2ex[2].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][13]->Fill( q2ex[2].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][14]->Fill( q2ex[3].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][15]->Fill( q2ex[3].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][16]->Fill( q2ex[3].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][17]->Fill( q2ex[4].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][18]->Fill( q2ex[4].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][19]->Fill( q2ex[4].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][20]->Fill( q2ex[5].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][21]->Fill( q2ex[5].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][22]->Fill( q2ex[5].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][23]->Fill( q2ex[6].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][24]->Fill( q2ex[6].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][25]->Fill( q2ex[6].Psi2Pi(), q2fv[0].Psi2Pi() );
-hEVC[2][26]->Fill( q2ex[7].Psi2Pi(), q2bb[2].Psi2Pi() );
-hEVC[2][27]->Fill( q2ex[7].Psi2Pi(), q2ca[0].Psi2Pi() );
-hEVC[2][28]->Fill( q2ex[7].Psi2Pi(), q2fv[0].Psi2Pi() );
-//hEVC[2][29]->Fill( q2ex[8].Psi2Pi(), q2bb[2].Psi2Pi() );
-//hEVC[2][30]->Fill( q2ex[8].Psi2Pi(), q2ca[0].Psi2Pi() );
-//hEVC[2][31]->Fill( q2ex[8].Psi2Pi(), q2fv[0].Psi2Pi() );
+hEVC[2][ 5]->Fill( exEP[0], bbEP[2] );
+hEVC[2][ 6]->Fill( exEP[1], fvEP[0] );
+hEVC[2][ 7]->Fill( exEP[2], caEP[0] );
+hEVC[2][ 8]->Fill( exEP[3], bbEP[2] );
+hEVC[2][ 9]->Fill( exEP[4], fvEP[0] );
+hEVC[2][10]->Fill( exEP[5], caEP[0] );
+hEVC[2][11]->Fill( exEP[6], bbEP[2] );
+hEVC[2][12]->Fill( exEP[7], fvEP[0] );
+hEVC[2][13]->Fill( exEP[8], caEP[0] );
+hEVC[2][14]->Fill( exEP[0], bbEP[2] );
+hEVC[2][15]->Fill( exEP[1], fvEP[0] );
+hEVC[2][16]->Fill( exEP[2], caEP[0] );
+hEVC[2][17]->Fill( exEP[3], bbEP[2] );
+hEVC[2][18]->Fill( exEP[4], fvEP[0] );
+hEVC[2][19]->Fill( exEP[5], caEP[0] );
+hEVC[2][20]->Fill( exEP[6], bbEP[2] );
+hEVC[2][21]->Fill( exEP[7], fvEP[0] );
+hEVC[2][22]->Fill( exEP[8], caEP[0] );
+hEVC[2][23]->Fill( exEP[0], bbEP[2] );
+hEVC[2][24]->Fill( exEP[1], fvEP[0] );
+hEVC[2][25]->Fill( exEP[2], caEP[0] );
+hEVC[2][26]->Fill( exEP[3], bbEP[2] );
+hEVC[2][27]->Fill( exEP[4], fvEP[0] );
+hEVC[2][28]->Fill( exEP[5], caEP[0] );
+hEVC[2][29]->Fill( exEP[6], bbEP[2] );
+hEVC[2][30]->Fill( exEP[7], fvEP[0] );
+hEVC[2][31]->Fill( exEP[8], caEP[0] );
 
 //==                                                                                                                                                                        
 // 32 +
