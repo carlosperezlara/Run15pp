@@ -21,7 +21,7 @@ int ploteventplane(TString run) {
   gFS->SetMarkerColor(kGray);
   gFS->SetMarkerStyle(25);
 
-  TString ooo = Form("out/myResults_%s.root",run.Data());
+  TString ooo = Form("eventplane/%s.root",run.Data());
   std::cout << "READING... " << ooo.Data() << std::endl;
   TFile* f2 = new TFile( ooo.Data() ); 
 
@@ -44,9 +44,9 @@ int ploteventplane(TString run) {
   TProfile2D *hPsiC = (TProfile2D*) f2->Get("PsiC");
   TProfile2D *hPsiS = (TProfile2D*) f2->Get("PsiS");
 
-  TH2F *hPSI  = (TH2F*) f2->Get("PSI0");
-  TH2F *hPSI2 = (TH2F*) f2->Get("PSI1");
-  TH2F *hPSI3 = (TH2F*) f2->Get("PSI2");
+  TH2F *hPSI  = (TH2F*) f2->Get("PSI");
+  TH2F *hPSI2 = (TH2F*) f2->Get("PSI2");
+  TH2F *hPSI3 = (TH2F*) f2->Get("PSI3");
   TH2F *hResD = (TH2F*) f2->Get("ResD");
   TProfile *hRes = (TProfile*) f2->Get("Res");
 

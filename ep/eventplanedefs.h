@@ -8,6 +8,7 @@ double bbqx[kBBN][2], bbqy[kBBN][2];
 double bbEP[kBBN];
 double bbEPpe[kBBN];
 qcQ q2bb[kBBN];
+bool isBBgood;
 
 // MPCEX 9 detectors
 const int kEXN = 9;
@@ -17,6 +18,7 @@ double exqx[kEXN][2], exqy[kEXN][2];
 double exEP[kEXN];
 double exEPpe[kEXN];
 qcQ q2ex[kEXN];
+bool isEXgood;
 
 // FVTX 1 detector
 const int kFVN = 1;
@@ -26,6 +28,7 @@ double fvqx[kFVN][2], fvqy[kFVN][2];
 double fvEP[kFVN];
 double fvEPpe[kFVN];
 qcQ q2fv[kFVN];
+bool isFVgood;
 
 // CENTRAL ARM 1 detectors
 const int kCAN = 1;
@@ -35,6 +38,7 @@ double caqx[kCAN][2], caqy[kCAN][2];
 double caEP[kCAN];
 double caEPpe[kCAN];
 qcQ q2ca[kCAN];
+bool isCAgood;
 
 TH2F *hQx;
 TH2F *hQy;
@@ -63,7 +67,7 @@ TH2F *hPSI2;
 TH2F *hResD;
 TProfile *hRes;
 
-TH2F *hEVC[3][32];
+TH2F *hEVC[3][33];
 
 //=====================================
 void CreateHistograms() {
@@ -108,33 +112,35 @@ void CreateHistograms() {
   // BBAC BBCBC BBAB 
   // FVBB FVCA
   // EX0BB EX0CA EX0FV (x9)
-  // = 32
-  TString title32[32] = {";BBSubA;BB", ";BBSubB;BB", ";BBSubA;BBSubB",
+  // CABB
+  // = 33
+  TString title33[33] = {";BBSubA;BB", ";BBSubB;BB", ";BBSubA;BBSubB",
 			 ";FV;BB",  ";FV;CA",
 			 ";EX0;BB", ";EX1;BB", ";EX2;BB", ";EX3;BB",
-			 ";EX4;BB", ";EX5;BB", ";EX6;BB", ";EX7;BB", ";EX8;BB"
+			 ";EX4;BB", ";EX5;BB", ";EX6;BB", ";EX7;BB", ";EX8;BB",
 			 ";EX0;FV", ";EX1;FV", ";EX2;FV", ";EX3;FV",
-			 ";EX4;FV", ";EX5;FV", ";EX6;FV", ";EX7;FV", ";EX8;FV"
+			 ";EX4;FV", ";EX5;FV", ";EX6;FV", ";EX7;FV", ";EX8;FV",
 			 ";EX0;CA", ";EX1;CA", ";EX2;CA", ";EX3;CA",
-			 ";EX4;CA", ";EX5;CA", ";EX6;CA", ";EX7;CA", ";EX8;CA"};
+			 ";EX4;CA", ";EX5;CA", ";EX6;CA", ";EX7;CA", ";EX8;CA",
+			 ";CA;BB"};
   for(int i=0; i!=3; ++i)
-    for(int j=0; j!=32; ++j)
-      hEVC[i][j] = new TH2F( Form("EVC%d_DET%d",i,j), title32[j].Data(),
+    for(int j=0; j!=33; ++j)
+      hEVC[i][j] = new TH2F( Form("EVC%d_DET%d",i,j), title33[j].Data(),
 			     100,0,TMath::TwoPi(), 100,0,TMath::TwoPi() );
 
-  // 32 +
+  // 33 +
   // EX04 EX15 EX26 EX37
-  // = 36
-  TString title36[36] = {"BBA-BB","BBB-BB","BBA-BBB","FB-BB","FV-CA",
+  // = 37
+  TString title37[37] = {"BBA-BB","BBB-BB","BBA-BBB","FB-BB","FV-CA",
 			 "EX0-BB","EX1-BB","EX2-BB","EX3-BB","EX4-BB","EX5-BB","EX6-BB","EX7-BB","EX8-BB",
 			 "EX0-FV","EX1-FV","EX2-FV","EX3-FV","EX4-FV","EX5-FV","EX6-FV","EX7-FV","EX8-FV",
 			 "EX0-CA","EX1-CA","EX2-CA","EX3-CA","EX4-CA","EX5-CA","EX6-CA","EX7-CA","EX8-CA",
-			 "EX0-EX4","EX1-EX5","EX2-EX6","EX3-EX7"};
-  hResD = new TH2F("ResD","", 36,-0.5,35.5, 100,-1.1,+1.1);
-  hRes = new TProfile("Res","", 36,-0.5,35.5, -1.1,+1.1);  
-  for(int i=0; i!=36; ++i) {
-    hResD->GetXaxis()->SetBinLabel(i+1,title36[i]);
-    hRes->GetXaxis()->SetBinLabel(i+1,title36[i]);
+			 "CA-BB","EX0-EX4","EX1-EX5","EX2-EX6","EX3-EX7"};
+  hResD = new TH2F("ResD","", 37,-0.5,36.5, 100,-1.1,+1.1);
+  hRes = new TProfile("Res","", 37,-0.5,36.5, -1.1,+1.1);  
+  for(int i=0; i!=37; ++i) {
+    hResD->GetXaxis()->SetBinLabel(i+1,title37[i]);
+    hRes->GetXaxis()->SetBinLabel(i+1,title37[i]);
   }
 }
 //=====================================
@@ -166,7 +172,7 @@ void SaveHistograms() {
   
   hRes->Write();
   hResD->Write();
-  for(int i=0; i!=3; ++i) for(int j=0; j!=32; ++j) hEVC[i][j]->Write();
+  for(int i=0; i!=3; ++i) for(int j=0; j!=33; ++j) hEVC[i][j]->Write();
 }
 //=====================================
 void LoadCalibs(TString run) {
@@ -247,9 +253,12 @@ void LoadCalibs(TString run) {
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kBBN; ++idet) {
+      //std::cout << "BB Detector " << idet << std::endl;
       for(int iord=0; iord!=kMaxOrder; ++iord) {
 	fin >> bba[idet][iord] >> bbb[idet][iord];
+	//std::cout << bba[idet][iord] << " " << bbb[idet][iord] << "|";
       }
+      //std::cout << std::endl;
     }
   }
   fin.close();
@@ -257,9 +266,12 @@ void LoadCalibs(TString run) {
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kFVN; ++idet) {
+      //std::cout << "FV Detector " << idet << std::endl;
       for(int iord=0; iord!=kMaxOrder; ++iord) {
 	fin >> fva[idet][iord] >> fvb[idet][iord];
+	//std::cout << fva[idet][iord] << " " << fvb[idet][iord] << "|";
       }
+      //std::cout << std::endl;
     }
   }
   fin.close();
@@ -267,9 +279,12 @@ void LoadCalibs(TString run) {
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kCAN; ++idet) {
+      //std::cout << "CA Detector " << idet << std::endl;
       for(int iord=0; iord!=kMaxOrder; ++iord) {
 	fin >> caa[idet][iord] >> cab[idet][iord];
+	//std::cout << caa[idet][iord] << " " << cab[idet][iord] << "|";
       }
+      //std::cout << std::endl;
     }
   }
   fin.close();
@@ -277,23 +292,33 @@ void LoadCalibs(TString run) {
   fin >> tmp; //ord
   if(fin.good()) {
     for(int idet=0; idet!=kEXN; ++idet) {
+      //std::cout << "EX Detector " << idet << std::endl;
       for(int iord=0; iord!=kMaxOrder; ++iord) {
 	fin >> exa[idet][iord] >> exb[idet][iord];
+	//std::cout << exa[idet][iord] << " " << exb[idet][iord] << "|";
       }
+      //std::cout << std::endl;
     }
   }
   fin.close();
+
 }
+
 //=====================================
 void GetEPbb() {
   for(int idet=0; idet!=kBBN; ++idet) {
     bbEP[idet] = q2bb[idet].Psi2Pi();
+    //std::cout << " [[" << bbEP[idet] << "]] ";
     double delta = 0.0;
     for(int iord=0; iord!=kMaxOrder; ++iord) {
       delta += TMath::Cos((iord+1.0)*bbEP[idet])*bbb[idet][iord];
       delta += TMath::Sin((iord+1.0)*bbEP[idet])*bba[idet][iord];
     }
+    //std::cout << "[" << delta << "]";
     bbEP[idet] += delta;
+    //std::cout << " [[" << bbEP[idet] << "]]" << std::endl;
+    if(bbEP[idet]<0) bbEP[idet] += TMath::TwoPi();
+    if(bbEP[idet]>TMath::TwoPi()) bbEP[idet] -= TMath::TwoPi();
   }
 }
 //=====================================
@@ -306,18 +331,25 @@ void GetEPfv() {
       delta += TMath::Sin((iord+1.0)*fvEP[idet])*fva[idet][iord];
     }
     fvEP[idet] += delta;
+    if(fvEP[idet]<0) fvEP[idet] += TMath::TwoPi();
+    if(fvEP[idet]>TMath::TwoPi()) fvEP[idet] -= TMath::TwoPi();
   }
 }
 //=====================================
 void GetEPca() {
   for(int idet=0; idet!=kCAN; ++idet) {
+    //std::cout << q2ca[idet].X() << " " << q2ca[idet].Y() << std::endl;
     caEP[idet] = q2ca[idet].Psi2Pi();
+    //std::cout << "CA " << caEP[idet] << " => [";
     double delta = 0.0;
     for(int iord=0; iord!=kMaxOrder; ++iord) {
       delta += TMath::Cos((iord+1.0)*caEP[idet])*cab[idet][iord];
       delta += TMath::Sin((iord+1.0)*caEP[idet])*caa[idet][iord];
     }
     caEP[idet] += delta;
+    //std::cout << delta << "] => " << caEP[idet] << std::endl;
+    if(caEP[idet]<0) caEP[idet] += TMath::TwoPi();
+    if(caEP[idet]>TMath::TwoPi()) caEP[idet] -= TMath::TwoPi();
   }
 }
 //=====================================
@@ -330,6 +362,8 @@ void GetEPex() {
       delta += TMath::Sin((iord+1.0)*exEP[idet])*exa[idet][iord];
     }
     exEP[idet] += delta;
+    if(exEP[idet]<0) exEP[idet] += TMath::TwoPi();
+    if(exEP[idet]>TMath::TwoPi()) exEP[idet] -= TMath::TwoPi();
   }
 }
 //=====================================
@@ -370,47 +404,67 @@ void Recenterex() {
 }
 //=====================================
 void StoreQcomponents() {
-  hQx->Fill(0.0,q2bb[0].X());
-  hQx->Fill(1.0,q2bb[1].X());
-  hQx->Fill(2.0,q2bb[2].X());
-  hQx->Fill(3.0,q2fv[0].X());
-  hQx->Fill(4.0,q2ex[0].X());
-  hQx->Fill(5.0,q2ex[1].X());
-  hQx->Fill(6.0,q2ex[2].X());
-  hQx->Fill(7.0,q2ex[3].X());
-  hQx->Fill(8.0,q2ex[4].X());
-  hQx->Fill(9.0,q2ex[5].X());
-  hQx->Fill(10.,q2ex[6].X());
-  hQx->Fill(11.,q2ex[7].X());
-  //
-  hQx->Fill(13.,q2ca[0].X());
-
-  hQy->Fill(0.0,q2bb[0].Y());
-  hQy->Fill(1.0,q2bb[1].Y());
-  hQy->Fill(2.0,q2bb[2].Y());
-  hQy->Fill(3.0,q2fv[0].Y());
-  hQy->Fill(4.0,q2ex[0].Y());
-  hQy->Fill(5.0,q2ex[1].Y());
-  hQy->Fill(6.0,q2ex[2].Y());
-  hQy->Fill(7.0,q2ex[3].Y());
-  hQy->Fill(8.0,q2ex[4].Y());
-  hQy->Fill(9.0,q2ex[5].Y());
-  hQy->Fill(10.,q2ex[6].Y());
-  hQy->Fill(11.,q2ex[7].Y());
-  //
-  hQy->Fill(13.,q2ca[0].Y());
-
-  // Qx 12 not stored yet
-  // Qy 12 not stored yet
+  if(isBBgood) {
+    hQx->Fill(0.0,q2bb[0].X());
+    hQx->Fill(1.0,q2bb[1].X());
+    hQx->Fill(2.0,q2bb[2].X());
+    hQy->Fill(0.0,q2bb[0].Y());
+    hQy->Fill(1.0,q2bb[1].Y());
+    hQy->Fill(2.0,q2bb[2].Y());
+  }
+  if(isFVgood) {
+    hQx->Fill(3.0,q2fv[0].X());
+    hQy->Fill(3.0,q2fv[0].Y());
+  }
+  if(isEXgood) {
+    hQx->Fill(4.0,q2ex[0].X());
+    hQx->Fill(5.0,q2ex[1].X());
+    hQx->Fill(6.0,q2ex[2].X());
+    hQx->Fill(7.0,q2ex[3].X());
+    hQx->Fill(8.0,q2ex[4].X());
+    hQx->Fill(9.0,q2ex[5].X());
+    hQx->Fill(10.,q2ex[6].X());
+    hQx->Fill(11.,q2ex[7].X());
+    // Qx 12 not stored yet
+    hQy->Fill(4.0,q2ex[0].Y());
+    hQy->Fill(5.0,q2ex[1].Y());
+    hQy->Fill(6.0,q2ex[2].Y());
+    hQy->Fill(7.0,q2ex[3].Y());
+    hQy->Fill(8.0,q2ex[4].Y());
+    hQy->Fill(9.0,q2ex[5].Y());
+    hQy->Fill(10.,q2ex[6].Y());
+    hQy->Fill(11.,q2ex[7].Y());
+    // Qy 12 not stored yet
+  }
+  if(isCAgood) {
+    hQx->Fill(13.,q2ca[0].X());
+    hQy->Fill(13.,q2ca[0].Y());
+  }
 }
 //=====================================
-void StoreEPFlatteningCoeficients() {
+void StoreEPFlatteningCoeficientsBB() {
   for(int iord=0; iord!=kMaxOrder; ++iord) {
     float nn = iord + 1.0;
     hPsiC->Fill(0.0, nn, TMath::Cos(nn*q2bb[0].Psi2Pi()) );
     hPsiC->Fill(1.0, nn, TMath::Cos(nn*q2bb[1].Psi2Pi()) );
     hPsiC->Fill(2.0, nn, TMath::Cos(nn*q2bb[2].Psi2Pi()) );
+    hPsiS->Fill(0.0, nn, TMath::Sin(nn*q2bb[0].Psi2Pi()) );
+    hPsiS->Fill(1.0, nn, TMath::Sin(nn*q2bb[1].Psi2Pi()) );
+    hPsiS->Fill(2.0, nn, TMath::Sin(nn*q2bb[2].Psi2Pi()) );
+  }
+}
+//=====================================
+void StoreEPFlatteningCoeficientsFV() {
+  for(int iord=0; iord!=kMaxOrder; ++iord) {
+    float nn = iord + 1.0;
     hPsiC->Fill(3.0, nn, TMath::Cos(nn*q2fv[0].Psi2Pi()) );
+    hPsiS->Fill(3.0, nn, TMath::Sin(nn*q2fv[0].Psi2Pi()) );
+  }
+}
+//=====================================
+void StoreEPFlatteningCoeficientsEX() {
+  for(int iord=0; iord!=kMaxOrder; ++iord) {
+    float nn = iord + 1.0;
     hPsiC->Fill(4.0, nn, TMath::Cos(nn*q2ex[0].Psi2Pi()) );
     hPsiC->Fill(5.0, nn, TMath::Cos(nn*q2ex[1].Psi2Pi()) );
     hPsiC->Fill(6.0, nn, TMath::Cos(nn*q2ex[2].Psi2Pi()) );
@@ -420,12 +474,6 @@ void StoreEPFlatteningCoeficients() {
     hPsiC->Fill(10., nn, TMath::Cos(nn*q2ex[6].Psi2Pi()) );
     hPsiC->Fill(11., nn, TMath::Cos(nn*q2ex[7].Psi2Pi()) );
     hPsiC->Fill(12., nn, TMath::Cos(nn*q2ex[8].Psi2Pi()) );
-    hPsiC->Fill(13., nn, TMath::Cos(nn*q2ca[0].Psi2Pi()) );
-    //=
-    hPsiS->Fill(0.0, nn, TMath::Sin(nn*q2bb[0].Psi2Pi()) );
-    hPsiS->Fill(1.0, nn, TMath::Sin(nn*q2bb[1].Psi2Pi()) );
-    hPsiS->Fill(2.0, nn, TMath::Sin(nn*q2bb[2].Psi2Pi()) );
-    hPsiS->Fill(3.0, nn, TMath::Sin(nn*q2fv[0].Psi2Pi()) );
     hPsiS->Fill(4.0, nn, TMath::Sin(nn*q2ex[0].Psi2Pi()) );
     hPsiS->Fill(5.0, nn, TMath::Sin(nn*q2ex[1].Psi2Pi()) );
     hPsiS->Fill(6.0, nn, TMath::Sin(nn*q2ex[2].Psi2Pi()) );
@@ -435,15 +483,28 @@ void StoreEPFlatteningCoeficients() {
     hPsiS->Fill(10., nn, TMath::Sin(nn*q2ex[6].Psi2Pi()) );
     hPsiS->Fill(11., nn, TMath::Sin(nn*q2ex[7].Psi2Pi()) );
     hPsiS->Fill(12., nn, TMath::Sin(nn*q2ex[8].Psi2Pi()) );
+  }
+}
+//=====================================
+void StoreEPFlatteningCoeficientsCA() {
+  for(int iord=0; iord!=kMaxOrder; ++iord) {
+    float nn = iord + 1.0;
+    hPsiC->Fill(13., nn, TMath::Cos(nn*q2ca[0].Psi2Pi()) );
     hPsiS->Fill(13., nn, TMath::Sin(nn*q2ca[0].Psi2Pi()) );
   }
 }
 //=====================================
-void MoveEPtoPreviousEvent() {
+void MoveEPtoPreviousEventBB() {
   bbEPpe[0] = bbEP[0];
   bbEPpe[1] = bbEP[1];
   bbEPpe[2] = bbEP[2];
+}
+//=====================================
+void MoveEPtoPreviousEventFV() {
   fvEPpe[0] = fvEP[0];
+}
+//=====================================
+void MoveEPtoPreviousEventEX() {
   exEPpe[0] = exEP[0];
   exEPpe[1] = exEP[1];
   exEPpe[2] = exEP[2];
@@ -453,6 +514,9 @@ void MoveEPtoPreviousEvent() {
   exEPpe[6] = exEP[6];
   exEPpe[7] = exEP[7];
   exEPpe[8] = exEP[8];
+}
+//=====================================
+void MoveEPtoPreviousEventCA() {
   caEPpe[0] = caEP[0];
 }
 //=====================================
@@ -472,15 +536,17 @@ void SaveCalibFiles(TString run) {
   //==
   fout.open( Form("out/calib/fv%s.dat1",run.Data()) );
   fout << kFVN << endl;
-  hpx = hQx->ProjectionY( "qx_fv", 4, 4 );
-  hpy = hQy->ProjectionY( "qy_fv", 4, 4 );
-  fout << hpx->GetMean() << " " << hpy->GetMean() << " ";
-  fout << hpx->GetRMS()  << " " << hpy->GetRMS() << endl;
+  for(int idet=0; idet!=kFVN; ++idet) {
+    hpx = hQx->ProjectionY( "qx_fv", 4+idet, 4+idet );
+    hpy = hQy->ProjectionY( "qy_fv", 4+idet, 4+idet );
+    fout << hpx->GetMean() << " " << hpy->GetMean() << " ";
+    fout << hpx->GetRMS()  << " " << hpy->GetRMS() << endl;
+  }
   fout.close();
   //==
   fout.open( Form("out/calib/ex%s.dat1",run.Data()) );
   fout << kEXN << endl;
-  for(int idet=0; idet!=9; ++idet) {
+  for(int idet=0; idet!=kEXN; ++idet) {
     hpx = hQx->ProjectionY( Form("qx_ex%d",idet), 5+idet, 5+idet );
     hpy = hQy->ProjectionY( Form("qy_ex%d",idet), 5+idet, 5+idet );
     fout << hpx->GetMean() << " " << hpy->GetMean() << " ";
@@ -512,11 +578,13 @@ void SaveCalibFiles(TString run) {
   //==
   fout.open( Form("out/calib/fv%s.dat2",run.Data()) );
   fout << kMaxOrder << endl;
-  for(int iord=0; iord!=kMaxOrder; ++iord) {
-    fout << +2.0/(iord+1.0)*hPsiC->GetBinContent(4,iord+1) << " ";
-    fout << -2.0/(iord+1.0)*hPsiS->GetBinContent(4,iord+1) << " ";
+  for(int idet=0; idet!=kFVN; ++idet) {
+    for(int iord=0; iord!=kMaxOrder; ++iord) {
+      fout << +2.0/(iord+1.0)*hPsiC->GetBinContent(4+idet,iord+1) << " ";
+      fout << -2.0/(iord+1.0)*hPsiS->GetBinContent(4+idet,iord+1) << " ";
+    }
+    fout << endl;
   }
-  fout << endl;
   fout.close();
   //==
   fout.open( Form("out/calib/ex%s.dat2",run.Data()) );

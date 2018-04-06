@@ -14,7 +14,7 @@ void CreateQCA() {
     float dz   = pTRKpc3sdz->at(itrk);
     float zed  = pTRKzed->at(itrk);
     int fbit = pTRKqua->at(itrk);
-    if(fbit!=63) continue;
+    //if(fbit!=63) continue;
     if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
     if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
     if(TMath::Abs(dphi)>3) continue;
@@ -28,16 +28,21 @@ int main(int argc, char *argv[]){
     std::cout << "launch with args RUN NEVS" << std::endl;
     return 1;
   }
+  q2ca[0].SetOrder(2);
   TString run = argv[1];
   TString snev = argv[2];
   int nev = snev.Atoi();
 
   //======= HISTOS
-  TH1F *hEvents = new TH1F("Events","",5,-0.5,4.5);
+  TH1F *hEvents = new TH1F("Events","",10,-0.5,9.5);
   hEvents->GetXaxis()->SetBinLabel(1,"All");
   hEvents->GetXaxis()->SetBinLabel(2,"triggered");
   hEvents->GetXaxis()->SetBinLabel(3,"centrality");
   hEvents->GetXaxis()->SetBinLabel(4,"fraction");
+  hEvents->GetXaxis()->SetBinLabel(5,"BB");
+  hEvents->GetXaxis()->SetBinLabel(6,"FV");
+  hEvents->GetXaxis()->SetBinLabel(7,"EX");
+  hEvents->GetXaxis()->SetBinLabel(8,"CA");
   TH1F *hFrac = new TH1F("FRAC","", 100, 0.0, 1.0);
   TH1F *hCent = new TH1F("CENT","", 100, 0.0, 100);
   TH1F *hVtxZ = new TH1F("VTXZ","", 100, -11, +11);
@@ -75,7 +80,7 @@ int main(int argc, char *argv[]){
   TLorentzVector ii,jj,pp;
   float RndmPSI = 0;
   for(Long64_t i1=0; i1<nevt; ++i1) {
-    if(i1%20000 == 0) {
+    if(i1%50000 == 0) {
       std::cout << "Event:  " << i1 << "/" << nevt;
       std::cout << Form(" (%.1f)",i1*100.0/nevt) << std::endl;
     }
@@ -114,6 +119,21 @@ int main(int argc, char *argv[]){
     q2ex[7] = pQ2ex->at(7);
 
     CreateQCA();
+    isBBgood = false;
+    isFVgood = false;
+    isEXgood = false;
+    isCAgood = false;
+    if(q2bb[2].M()>40) isBBgood = true; 
+    if(q2fv[0].M()>10) isFVgood = true; 
+    float xm =0;
+    for(int i=0; i!=8; ++i) xm += q2ex[i].M();
+    if(xm>60) isEXgood = true; 
+    if(q2ca[0].M()>2)  isCAgood = true; 
+
+    if(isBBgood) hEvents->Fill(4.0);
+    if(isFVgood) hEvents->Fill(5.0);
+    if(isEXgood) hEvents->Fill(6.0);
+    if(isCAgood) hEvents->Fill(7.0);
 
     /*
     std::cout << " || CA " << q2ca[0].NP();
@@ -144,9 +164,10 @@ int main(int argc, char *argv[]){
     //=================================
     //=================================
     // STEP 2: RECENTER
-    Recenterbb();
-    Recenterfv();
-    Recenterex(); //only EX subdetectors
+    if(isBBgood) Recenterbb();
+    if(isFVgood) Recenterfv();
+    if(isEXgood) Recenterex(); //only EX subdetectors
+    if(isCAgood) Recenterca();
     if(fVerbosity) std::cout << "===> STEP 2 [DONE]" << endl;
     //=================================
     //=================================
@@ -155,19 +176,26 @@ int main(int argc, char *argv[]){
     //=================================
     //=================================
     // STEP 3: CONSTRUCT FULL EX
-    q2ex[8] = q2ex[0] + q2ex[1] + q2ex[2] + q2ex[3]; // construct
-    q2ex[8] = q2ex[4] + q2ex[5] + q2ex[6] + q2ex[7]; // full EX (after recenter its parts)
-    hQx->Fill(12.,q2ex[8].X()); // Qx 12
-    hQy->Fill(12.,q2ex[8].Y()); // Qy 12
-    //---- ( Qaing, save to remove later)
-    hQM->Fill( 12., q2ex[8].M() ); // Qred 12
-    hQred0->Fill( 12., q2ex[8].Reduced() ); // Qred 12
-    hPSI0->Fill( 12., q2ex[8].Psi2Pi() ); // PSI 12
-    hEVC[0][10]->Fill( q2ex[8].Psi2Pi(), q2bb[2].Psi2Pi() ); // EVC 10
-    //----
-    q2ex[8].SetXY( (q2ex[8].X()-exqx[8][0])/*/exqx[8][1]*/,
-		   (q2ex[8].Y()-exqy[8][0])/*/exqy[8][1]*/,
-		   q2ex[8].NP(), q2ex[8].M() );
+    if(isEXgood) {
+      q2ex[8] = q2ex[0] + q2ex[1] + q2ex[2] + q2ex[3]; // construct
+      q2ex[8] = q2ex[4] + q2ex[5] + q2ex[6] + q2ex[7]; // full EX (after recenter its parts)
+      //---- ( Qaing, save to remove later)
+      hQx->Fill(12.,q2ex[8].X()); // Qx 12
+      hQy->Fill(12.,q2ex[8].Y()); // Qy 12
+      hQM->Fill( 12., q2ex[8].M() ); // Qred 12
+      hQred0->Fill( 12., q2ex[8].Reduced() ); // Qred 12
+      hPSI0->Fill( 12., q2ex[8].Psi2Pi() ); // PSI 12
+      if(isBBgood)
+	hEVC[0][13]->Fill( q2ex[8].Psi2Pi(), q2bb[2].Psi2Pi() ); // EVC 13
+      if(isFVgood)
+	hEVC[0][22]->Fill( q2ex[8].Psi2Pi(), q2fv[2].Psi2Pi() ); // EVC 22
+      if(isCAgood)
+	hEVC[0][31]->Fill( q2ex[8].Psi2Pi(), q2ca[2].Psi2Pi() ); // EVC 31
+      //----
+      q2ex[8].SetXY( (q2ex[8].X()-exqx[8][0])/*/exqx[8][1]*/,
+		     (q2ex[8].Y()-exqy[8][0])/*/exqy[8][1]*/,
+		     q2ex[8].NP(), q2ex[8].M() );
+    }
     if(fVerbosity) std::cout << "===> STEP 3 [DONE]" << endl;
     //=================================
     //=================================
@@ -177,15 +205,22 @@ int main(int argc, char *argv[]){
     //=================================
     //=================================
     // STEP 4: FLATTENING
-    GetEPbb();
-    GetEPfv();
-    GetEPex();
-    GetEPca();
+    //std::cout << bbEP[0] << " " << bbEP[1] << " " << bbEP[2] << " | ";
+    if(isBBgood) GetEPbb();
+    if(isFVgood) GetEPfv();
+    if(isEXgood) GetEPex();
+    if(isCAgood) GetEPca();
+    //std::cout << bbEP[0] << " " << bbEP[1] << " " << bbEP[2] << std::endl;
+
     if(fVerbosity) std::cout << "===> STEP 4 [DONE]" << endl;
     //=================================
     //=================================
 
     #include "eventplane.qa.2.cpp"
+    if(isBBgood) StoreEPFlatteningCoeficientsBB();
+    if(isFVgood) StoreEPFlatteningCoeficientsFV();
+    if(isEXgood) StoreEPFlatteningCoeficientsEX();
+    if(isCAgood) StoreEPFlatteningCoeficientsCA();
 
     //=== START OF MAIN LOOP
     if(fVerbosity) std::cout << "===> START OF MAIN LOOP" << endl;
@@ -200,7 +235,9 @@ int main(int argc, char *argv[]){
       float dphi = pTRKpc3sdphi->at(itrk);
       float dz   = pTRKpc3sdz->at(itrk);
       float zed  = pTRKzed->at(itrk);
+      int qua = pTRKqua->at(itrk);
       //float beta = tof/TMath::Sqrt(pt*pt+pz*pz);
+      if(qua!=63) continue;
       if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
       if(TMath::Abs(dphi)>3) continue;
       if(TMath::Abs(dz)>3) continue;
@@ -218,53 +255,67 @@ int main(int argc, char *argv[]){
       } else {
 	ew = 1; //WEST
       }
-      hV2[ew]->Fill( 0.0, pt, TMath::Cos( 2.0*(phi-bbEP[0]) ) );
-      hV2[ew]->Fill( 1.0, pt, TMath::Cos( 2.0*(phi-bbEP[1]) ) );
-      hV2[ew]->Fill( 2.0, pt, TMath::Cos( 2.0*(phi-bbEP[2]) ) );
-      hV2[ew]->Fill( 3.0, pt, TMath::Cos( 2.0*(phi-fvEP[0]) ) );
-      hV2[ew]->Fill( 4.0, pt, TMath::Cos( 2.0*(phi-exEP[0]) ) );
-      hV2[ew]->Fill( 5.0, pt, TMath::Cos( 2.0*(phi-exEP[1]) ) );
-      hV2[ew]->Fill( 6.0, pt, TMath::Cos( 2.0*(phi-exEP[2]) ) );
-      hV2[ew]->Fill( 7.0, pt, TMath::Cos( 2.0*(phi-exEP[3]) ) );
-      hV2[ew]->Fill( 8.0, pt, TMath::Cos( 2.0*(phi-exEP[4]) ) );
-      hV2[ew]->Fill( 9.0, pt, TMath::Cos( 2.0*(phi-exEP[5]) ) );
-      hV2[ew]->Fill( 10., pt, TMath::Cos( 2.0*(phi-exEP[6]) ) );
-      hV2[ew]->Fill( 11., pt, TMath::Cos( 2.0*(phi-exEP[7]) ) );
-      hV2[ew]->Fill( 12., pt, TMath::Cos( 2.0*(phi-exEP[8]) ) );
+      if(isBBgood) {
+	hV2[ew]->Fill( 0.0, pt, TMath::Cos( 2.0*(phi-bbEP[0]) ) );
+	hV2[ew]->Fill( 1.0, pt, TMath::Cos( 2.0*(phi-bbEP[1]) ) );
+	hV2[ew]->Fill( 2.0, pt, TMath::Cos( 2.0*(phi-bbEP[2]) ) );
+      }
+      if(isFVgood)
+	hV2[ew]->Fill( 3.0, pt, TMath::Cos( 2.0*(phi-fvEP[0]) ) );
+      if(isEXgood) {
+	hV2[ew]->Fill( 4.0, pt, TMath::Cos( 2.0*(phi-exEP[0]) ) );
+	hV2[ew]->Fill( 5.0, pt, TMath::Cos( 2.0*(phi-exEP[1]) ) );
+	hV2[ew]->Fill( 6.0, pt, TMath::Cos( 2.0*(phi-exEP[2]) ) );
+	hV2[ew]->Fill( 7.0, pt, TMath::Cos( 2.0*(phi-exEP[3]) ) );
+	hV2[ew]->Fill( 8.0, pt, TMath::Cos( 2.0*(phi-exEP[4]) ) );
+	hV2[ew]->Fill( 9.0, pt, TMath::Cos( 2.0*(phi-exEP[5]) ) );
+	hV2[ew]->Fill( 10., pt, TMath::Cos( 2.0*(phi-exEP[6]) ) );
+	hV2[ew]->Fill( 11., pt, TMath::Cos( 2.0*(phi-exEP[7]) ) );
+	hV2[ew]->Fill( 12., pt, TMath::Cos( 2.0*(phi-exEP[8]) ) );
+      }
       if(pt>1.0&&pt<1.2) {
-	hDP[ew]->Fill( 0.0, phi-bbEP[0] ); hDPPE[ew]->Fill( 0.0, phi-bbEPpe[0] );
-	hDP[ew]->Fill( 1.0, phi-bbEP[1] ); hDPPE[ew]->Fill( 1.0, phi-bbEPpe[1] );
-	hDP[ew]->Fill( 2.0, phi-bbEP[2] ); hDPPE[ew]->Fill( 2.0, phi-bbEPpe[2] );
-	hDP[ew]->Fill( 3.0, phi-fvEP[0] ); hDPPE[ew]->Fill( 3.0, phi-fvEPpe[0] );
-	hDP[ew]->Fill( 4.0, phi-exEP[0] ); hDPPE[ew]->Fill( 4.0, phi-exEPpe[0] );
-	hDP[ew]->Fill( 5.0, phi-exEP[1] ); hDPPE[ew]->Fill( 5.0, phi-exEPpe[1] );
-	hDP[ew]->Fill( 6.0, phi-exEP[2] ); hDPPE[ew]->Fill( 6.0, phi-exEPpe[2] );
-	hDP[ew]->Fill( 7.0, phi-exEP[3] ); hDPPE[ew]->Fill( 7.0, phi-exEPpe[3] );
-	hDP[ew]->Fill( 8.0, phi-exEP[4] ); hDPPE[ew]->Fill( 8.0, phi-exEPpe[4] );
-	hDP[ew]->Fill( 9.0, phi-exEP[5] ); hDPPE[ew]->Fill( 9.0, phi-exEPpe[5] );
-	hDP[ew]->Fill( 10., phi-exEP[6] ); hDPPE[ew]->Fill( 10., phi-exEPpe[6] );
-	hDP[ew]->Fill( 11., phi-exEP[7] ); hDPPE[ew]->Fill( 11., phi-exEPpe[7] );
-	hDP[ew]->Fill( 12., phi-exEP[8] ); hDPPE[ew]->Fill( 12., phi-exEPpe[8] );
+	if(isBBgood) {
+	  hDP[ew]->Fill( 0.0, phi-bbEP[0] ); hDPPE[ew]->Fill( 0.0, phi-bbEPpe[0] );
+	  hDP[ew]->Fill( 1.0, phi-bbEP[1] ); hDPPE[ew]->Fill( 1.0, phi-bbEPpe[1] );
+	  hDP[ew]->Fill( 2.0, phi-bbEP[2] ); hDPPE[ew]->Fill( 2.0, phi-bbEPpe[2] );
+	}
+	if(isFVgood) {
+	  hDP[ew]->Fill( 3.0, phi-fvEP[0] ); hDPPE[ew]->Fill( 3.0, phi-fvEPpe[0] );
+	}
+	if(isEXgood) {
+	  hDP[ew]->Fill( 4.0, phi-exEP[0] ); hDPPE[ew]->Fill( 4.0, phi-exEPpe[0] );
+	  hDP[ew]->Fill( 5.0, phi-exEP[1] ); hDPPE[ew]->Fill( 5.0, phi-exEPpe[1] );
+	  hDP[ew]->Fill( 6.0, phi-exEP[2] ); hDPPE[ew]->Fill( 6.0, phi-exEPpe[2] );
+	  hDP[ew]->Fill( 7.0, phi-exEP[3] ); hDPPE[ew]->Fill( 7.0, phi-exEPpe[3] );
+	  hDP[ew]->Fill( 8.0, phi-exEP[4] ); hDPPE[ew]->Fill( 8.0, phi-exEPpe[4] );
+	  hDP[ew]->Fill( 9.0, phi-exEP[5] ); hDPPE[ew]->Fill( 9.0, phi-exEPpe[5] );
+	  hDP[ew]->Fill( 10., phi-exEP[6] ); hDPPE[ew]->Fill( 10., phi-exEPpe[6] );
+	  hDP[ew]->Fill( 11., phi-exEP[7] ); hDPPE[ew]->Fill( 11., phi-exEPpe[7] );
+	  hDP[ew]->Fill( 12., phi-exEP[8] ); hDPPE[ew]->Fill( 12., phi-exEPpe[8] );
+	}
       }
     }
     // END OF MAIN LOOP
-    bbEPpe[0] = bbEP[0];
-    bbEPpe[1] = bbEP[1];
-    bbEPpe[2] = bbEP[2];
-    fvEPpe[0] = fvEP[0];
-    exEPpe[0] = exEP[0];
-    exEPpe[1] = exEP[1];
-    exEPpe[2] = exEP[2];
-    exEPpe[3] = exEP[3];
-    exEPpe[4] = exEP[4];
-    exEPpe[5] = exEP[5];
-    exEPpe[6] = exEP[6];
-    exEPpe[7] = exEP[7];
-    exEPpe[8] = exEP[8];
-    caEPpe[0] = caEP[0];
+    if(isBBgood) {
+      bbEPpe[0] = bbEP[0];
+      bbEPpe[1] = bbEP[1];
+      bbEPpe[2] = bbEP[2];
+    }
+    if(isFVgood) fvEPpe[0] = fvEP[0];
+    if(isEXgood) {
+      exEPpe[0] = exEP[0];
+      exEPpe[1] = exEP[1];
+      exEPpe[2] = exEP[2];
+      exEPpe[3] = exEP[3];
+      exEPpe[4] = exEP[4];
+      exEPpe[5] = exEP[5];
+      exEPpe[6] = exEP[6];
+      exEPpe[7] = exEP[7];
+      exEPpe[8] = exEP[8];
+    }
+    if(isCAgood) caEPpe[0] = caEP[0];
   }
   //== SAVING EP CALIBS
-  StoreEPFlatteningCoeficients();
   SaveCalibFiles(run);
 
   //======== SAVING OUTPUT
