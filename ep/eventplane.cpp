@@ -8,7 +8,7 @@ void CreateQCA() {
   q2ca[0].Reset();
   uint ntrks = pTRKcid->size();
   for(uint itrk=0; itrk!=ntrks; ++itrk) {
-    float pt   = pTRKpt->at(itrk);
+    float pt   = TMath::Abs( pTRKpt->at(itrk) );
     float phi  = pTRKphi->at(itrk);
     float dphi = pTRKpc3sdphi->at(itrk);
     float dz   = pTRKpc3sdz->at(itrk);
@@ -53,7 +53,17 @@ int main(int argc, char *argv[]){
   TH1F *hphi  = new TH1F("phi","",  100, -TMath::TwoPi(), TMath::TwoPi());
   TH1F *hDz   = new TH1F("pc3Dz","", 100,-30., 30.);
   TH1F *hZED  = new TH1F("ZED","",  100,-100,+100);
-  TH2F *hBeta = new TH2F("Beta",";p [GeV/c];[ns]", 300,0,3,1800,-100,+500);
+  TH2F *hBeta = new TH2F("Beta",";p [GeV/c];[cm/ns]", 300,0,3,1800,-10,10);
+
+  TH2F *hQxEX0 = new TH2F("QxEX0","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX1 = new TH2F("QxEX1","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX2 = new TH2F("QxEX2","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX3 = new TH2F("QxEX3","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX4 = new TH2F("QxEX4","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX5 = new TH2F("QxEX5","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX6 = new TH2F("QxEX6","",100,-30,+30,100,-30,+30);
+  TH2F *hQxEX7 = new TH2F("QxEX7","",100,-30,+30,100,-30,+30);
+  TH2F *hQxFV  = new TH2F("QxFV", "",100,-30,+30,100,-30,+30);
 
   TProfile2D *hV2[2];
   hV2[0] = new TProfile2D("hV2_E","", 13,-0.5,12.5, 30,0,3, -1.1,+1.1);
@@ -155,6 +165,15 @@ int main(int argc, char *argv[]){
     //=================================
     // STEP 1:
     StoreQcomponents();
+    hQxEX0->Fill( q2ex[0].X(), q2bb[2].X() );
+    hQxEX1->Fill( q2ex[1].X(), q2bb[2].X() );
+    hQxEX2->Fill( q2ex[2].X(), q2bb[2].X() );
+    hQxEX3->Fill( q2ex[3].X(), q2bb[2].X() );
+    hQxEX4->Fill( q2ex[4].X(), q2bb[2].X() );
+    hQxEX5->Fill( q2ex[5].X(), q2bb[2].X() );
+    hQxEX6->Fill( q2ex[6].X(), q2bb[2].X() );
+    hQxEX7->Fill( q2ex[7].X(), q2bb[2].X() );
+    hQxFV->Fill(  q2fv[0].X(), q2bb[2].X() );
     if(fVerbosity) std::cout << "===> STEP 1 [DONE]" << endl;
     //=================================
     //=================================
@@ -226,7 +245,7 @@ int main(int argc, char *argv[]){
     if(fVerbosity) std::cout << "===> START OF MAIN LOOP" << endl;
     uint ntrks = pTRKcid->size();
     for(uint itrk=0; itrk!=ntrks; ++itrk) {
-      float pt   = pTRKpt->at(itrk);
+      float pt   = TMath::Abs( pTRKpt->at(itrk) );
       float pz   = pTRKpz->at(itrk);
       float phi  = pTRKphi->at(itrk);
       float ep   = pTRKecore->at(itrk) / TMath::Sqrt(pt*pt+pz*pz);
@@ -236,7 +255,9 @@ int main(int argc, char *argv[]){
       float dz   = pTRKpc3sdz->at(itrk);
       float zed  = pTRKzed->at(itrk);
       int qua = pTRKqua->at(itrk);
-      //float beta = tof/TMath::Sqrt(pt*pt+pz*pz);
+      double dlen = pTRKplemc->at(itrk);
+      double time = tof+dlen/kSpeedOfLightinNS;
+      double beta = dlen / ( time * kSpeedOfLightinNS );
       if(qua!=63) continue;
       if(TMath::Abs(zed)<3||TMath::Abs(zed)>70) continue;
       if(TMath::Abs(dphi)>3) continue;
@@ -341,7 +362,17 @@ int main(int argc, char *argv[]){
   hDP[1]->Write();
   hDPPE[0]->Write();
   hDPPE[1]->Write();
-  
+
+  hQxEX0->Write();
+  hQxEX1->Write();
+  hQxEX2->Write();
+  hQxEX3->Write();
+  hQxEX4->Write();
+  hQxEX5->Write();
+  hQxEX6->Write();
+  hQxEX7->Write();
+  hQxFV->Write();
+
   SaveHistograms();
   
   f2->Close();

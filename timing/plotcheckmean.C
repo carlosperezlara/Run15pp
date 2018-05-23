@@ -23,8 +23,8 @@ int plotcheckmean() {
     x[sec][nn[sec]] = twr;
     y[sec][nn[sec]] = mea;
     nn[sec]++;
-    if( fabs(mea) > 1 ) {
-      cout << twr << " " << mea << endl;
+    if( fabs(mea) > 0.5 ) {
+      cout << sec << " || " << twr << " || " << mea << endl;
     }
   }
 

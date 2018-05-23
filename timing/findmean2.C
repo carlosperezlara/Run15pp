@@ -62,6 +62,7 @@ int findmean2(int block=-1, bool justone = true, bool hacked=false, float inix=-
       proj->GetXaxis()->SetRangeUser(xmin,xmax);
       maxb = proj->GetMean();
       if(!hacked) {
+	maxb = proj->GetXaxis()->GetBinCenter( proj->GetMaximumBin() ); //proj->GetMean();
 	xmin = maxb-rangeswid[ittr]*scale;
 	xmax = maxb+rangeswid[ittr]*scale*0.8;
       }
