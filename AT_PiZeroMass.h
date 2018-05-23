@@ -3,10 +3,10 @@
 
 #include "AT_ReadTree.h"
 
-class AT_PiZeroFlow : public AT_ReadTree {
+class AT_PiZeroMass : public AT_ReadTree {
  public:
-  AT_PiZeroFlow();
-  virtual ~AT_PiZeroFlow() {}
+  AT_PiZeroMass();
+  virtual ~AT_PiZeroMass();
   virtual void MyInit();
   virtual void MyExec();
   virtual void MyFinish();

@@ -6,11 +6,11 @@
 AT_PiZeroFlow::AT_PiZeroFlow() : AT_ReadTree() {
 }
 
-void AT_PiZeroFlow::Init() {
+void AT_PiZeroFlow::MyInit() {
 }
 
-void AT_PiZeroFlow::End() {
+void AT_PiZeroFlow::MyFinish() {
 }
 
-void AT_PiZeroFlow::Exec() {
+void AT_PiZeroFlow::MyExec() {
 }
