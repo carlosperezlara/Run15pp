@@ -7,12 +7,12 @@
 #include <TMath.h>
 
 #include "Analysis.h"
-#include "AT_EventPlaneCalibrator.h"
+#include "AT_BBC_EPC.h"
 
-AT_EventPlaneCalibrator::AT_EventPlaneCalibrator() : AT_ReadTree() {
+AT_BBC_EPC::AT_BBC_EPC() : AT_ReadTree() {
 }
 
-void AT_EventPlaneCalibrator::MyInit() {
+void AT_BBC_EPC::MyInit() {
   Analysis *ana = Analysis::Instance();
   int run = ana->RunNumber();
   for(int i=0; i!=fNBinsCen; ++i) {
@@ -63,7 +63,7 @@ void AT_EventPlaneCalibrator::MyInit() {
   }
 }
 
-void AT_EventPlaneCalibrator::MyFinish() {
+void AT_BBC_EPC::MyFinish() {
   for(int i=0; i!=fNBinsCen; ++i) {
     for(int j=0; j!=2; ++j) {
       hBBCQ1xVtx[j][i]->Write();
@@ -86,7 +86,7 @@ void AT_EventPlaneCalibrator::MyFinish() {
   }
 }
 
-void AT_EventPlaneCalibrator::MyExec() {
+void AT_BBC_EPC::MyExec() {
   float vtx = fGLB.vtxZ;
   float cen = fGLB.cent;
   int bvtx = BinVertex( vtx );

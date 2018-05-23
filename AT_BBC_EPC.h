@@ -1,5 +1,5 @@
-#ifndef __AT_EVENTPLANECALIBRATOR_HH__
-#define __AT_EVENTPLANECALIBRATOR_HH__
+#ifndef __AT_BBC_EPC_HH__
+#define __AT_BBC_EPC_HH__
 
 #include "AT_ReadTree.h"
 
@@ -7,10 +7,10 @@ class TH1F;
 class TH2F;
 class TProfile2D;
 
-class AT_EventPlaneCalibrator : public AT_ReadTree {
+class AT_BBC_EPC : public AT_ReadTree {
  public:
-  AT_EventPlaneCalibrator();
-  virtual ~AT_EventPlaneCalibrator() {}
+  AT_BBC_EPC();
+  virtual ~AT_BBC_EPC() {}
   virtual void MyInit();
   virtual void MyExec();
   virtual void MyFinish();
