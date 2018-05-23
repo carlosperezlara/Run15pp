@@ -1,0 +1,48 @@
+#ifndef __Analysis_HH__
+#define __Analysis_HH__
+
+#include <TString.h>
+#include <TList.h>
+#include <TH2F.h>
+#include "AnalysisTask.h"
+
+class TFile;
+class TTree;
+
+class Analysis {
+ public:
+  static Analysis* Instance() {
+    if(!fAnalysis) fAnalysis = new Analysis();
+    return fAnalysis;
+  }
+  virtual ~Analysis();
+  void Run();
+  void Init();
+  void Exec();
+  void Finish();
+  void AddTask(AnalysisTask *tsk) {fListOfTasks->Add(tsk);}
+  void InputFileName(TString name) {fInputFileName = name;}
+  void OutputFileName(TString name) {fOutputFileName = name;}
+  void DataSetTag(TString name) {fDSTag =name;}
+  void NumberOfEventsToSkipAtBeginning(Long64_t skp) {fNoSkipEventsAtBeginning = skp;}
+  void NumberOfEventsToAnalyze(Long64_t nev) {fNoEventsAnalyzed = nev;}
+  TTree* GetTree() {return fTree;}
+  TString GetInputFileName() {return fInputFileName;} // used for calibration purposes
+  int RunNumber();
+  int SegmentNumber();
+ protected:
+  Analysis();
+  
+ private:
+  static Analysis *fAnalysis;
+  TString fInputFileName;
+  TString fOutputFileName;
+  TString fDSTag;
+  Long64_t fNoSkipEventsAtBeginning;
+  Long64_t fNoEventsAnalyzed;
+  TList *fListOfTasks;
+  TFile *fInputFile;
+  TTree *fTree;
+};
+
+#endif
