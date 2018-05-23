@@ -12,76 +12,42 @@
 AT_BBC_EPC::AT_BBC_EPC() : AT_ReadTree() {
 }
 
+AT_BBC_EPC::~AT_BBC_EPC() {
+  //Should delete histograms, otherwise leak.
+  //But this is the end anyway, so it does not matter
+}
 void AT_BBC_EPC::MyInit() {
   Analysis *ana = Analysis::Instance();
   int run = ana->RunNumber();
-  for(int i=0; i!=fNBinsCen; ++i) {
-    for(int j=0; j!=2; ++j) { // subevent
-      hBBCQ1xVtx[j][i] = new TH2F( Form("BBCQ1x_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ1x;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-      hBBCQ1yVtx[j][i] = new TH2F( Form("BBCQ1y_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ1y;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-      hBBCQ2xVtx[j][i] = new TH2F( Form("BBCQ2x_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ2x;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-      hBBCQ2yVtx[j][i] = new TH2F( Form("BBCQ2y_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ2y;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-      hBBCQ3xVtx[j][i] = new TH2F( Form("BBCQ3x_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ3x;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-      hBBCQ3yVtx[j][i] = new TH2F( Form("BBCQ3y_%d_S%d_CB%02d",run,j,i),
-				   "BBCQ3y;VtxBin",
-				   fNBinsVtx, -0.5, fNBinsVtx-0.5,
-				   60, -30, +30 );
-    }
-    hBBCQ1x_Step2[i] = new TH1F( Form("BBCQ1x_step2_CB%02d",i), "BBCQ1x",
-				 60, -30, +30 );
-    hBBCQ1y_Step2[i] = new TH1F( Form("BBCQ1y_step2_CB%02d",i), "BBCQ1y",
-				 60, -30, +30 );
-    hBBCQ2x_Step2[i] = new TH1F( Form("BBCQ2x_step2_CB%02d",i), "BBCQ2x",
-				 60, -30, +30 );
-    hBBCQ2y_Step2[i] = new TH1F( Form("BBCQ2y_step2_CB%02d",i), "BBCQ2y",
-				 60, -30, +30 );
-    hBBCQ3x_Step2[i] = new TH1F( Form("BBCQ3x_step2_CB%02d",i), "BBCQ3x",
-				 60, -30, +30 );
-    hBBCQ3y_Step2[i] = new TH1F( Form("BBCQ3y_step2_CB%02d",i), "BBCQ3y",
-				 60, -30, +30 );
-    for(int j=0; j!=3; ++j) {
-      hBBCPsiC[j][i] = new TProfile2D( Form("BBCPsiC_Ord%d_Cen%02d",i,j), "PsiC",
-				       fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
-      hBBCPsiS[j][i] = new TProfile2D( Form("BBCPsiS_Ord%d_Cen%02d",i,j), "PsiS",
-				       fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
+  for(int i=0; i!=fNBinsCen; ++i) { //centrality
+    for(int k=0; k!=3; ++k) { // order
+      for(int j=0; j!=2; ++j) { // subevent
+	hQxVtx[k][j][i] = new TH2F( Form("BBCQ%dx_S%d_CB%02d",k+1,j,i), "BBCQx;VtxBin",
+				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 60, -30, +30 );
+	hQyVtx[k][j][i] = new TH2F( Form("BBCQ%dy_S%d_CB%02d",k+1,j,i), "BBCQy;VtxBin",
+				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 60, -30, +30 );
+      }
+      hQx_RC[k][i] = new TH1F( Form("BBCQ%dx_RC_CB%02d",k,i), "BBCQx", 60, -30, +30 );
+      hQy_RC[k][i] = new TH1F( Form("BBCQ%dy_RC_CB%02d",k,i), "BBCQy", 60, -30, +30 );
+      hPsiC[k][i] = new TProfile2D( Form("BBCPsiC_Ord%d_Cen%02d",k,i), "PsiC",
+				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
+      hPsiS[k][i] = new TProfile2D( Form("BBCPsiS_Ord%d_Cen%02d",k,i), "PsiS",
+				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
     }
   }
 }
 
 void AT_BBC_EPC::MyFinish() {
-  for(int i=0; i!=fNBinsCen; ++i) {
-    for(int j=0; j!=2; ++j) {
-      hBBCQ1xVtx[j][i]->Write();
-      hBBCQ1yVtx[j][i]->Write();
-      hBBCQ2xVtx[j][i]->Write();
-      hBBCQ2yVtx[j][i]->Write();
-      hBBCQ3xVtx[j][i]->Write();
-      hBBCQ3yVtx[j][i]->Write();
-    }
-    hBBCQ1x_Step2[i]->Write();
-    hBBCQ1y_Step2[i]->Write();
-    hBBCQ2x_Step2[i]->Write();
-    hBBCQ2y_Step2[i]->Write();
-    hBBCQ3x_Step2[i]->Write();
-    hBBCQ3y_Step2[i]->Write();
-    for(int j=0; j!=3; ++j) {
-      hBBCPsiC[j][i]->Write();
-      hBBCPsiS[j][i]->Write();
+  for(int i=0; i!=fNBinsCen; ++i) { // centrality
+    for(int k=0; k!=2; ++k) { // order
+      for(int j=0; j!=2; ++j) { // subevent
+	hQxVtx[k][j][i]->Write();
+	hQyVtx[k][j][i]->Write();
+      }
+      hQx_RC[k][i]->Write();
+      hQy_RC[k][i]->Write();
+      hPsiC[k][i]->Write();
+      hPsiS[k][i]->Write();
     }
   }
 }
@@ -99,49 +65,36 @@ void AT_BBC_EPC::MyExec() {
     bbq[2][se] = pQ3bb->at(se);
   }
 
-  hBBCQ1xVtx[0][bcen]->Fill( bvtx, bbq[0][0].X() );
-  hBBCQ1yVtx[0][bcen]->Fill( bvtx, bbq[0][0].Y() );
-  hBBCQ1xVtx[1][bcen]->Fill( bvtx, bbq[0][1].X() );
-  hBBCQ1yVtx[1][bcen]->Fill( bvtx, bbq[0][1].Y() );
-
-  hBBCQ2xVtx[0][bcen]->Fill( bvtx, bbq[1][0].X() );
-  hBBCQ2yVtx[0][bcen]->Fill( bvtx, bbq[1][0].Y() );
-  hBBCQ2xVtx[1][bcen]->Fill( bvtx, bbq[1][1].X() );
-  hBBCQ2yVtx[1][bcen]->Fill( bvtx, bbq[1][1].Y() );
-
-  hBBCQ3xVtx[0][bcen]->Fill( bvtx, bbq[2][0].X() );
-  hBBCQ3yVtx[0][bcen]->Fill( bvtx, bbq[2][0].Y() );
-  hBBCQ3xVtx[1][bcen]->Fill( bvtx, bbq[2][1].X() );
-  hBBCQ3yVtx[1][bcen]->Fill( bvtx, bbq[2][1].Y() );
-
-  for(int ord=0; ord!=3; ++ord) {
-    for(int se=0; se!=2; ++se) {
-      bbq[ord][se].SetXY( bbq[ord][se].X() - bbcm[se][ord][0][bcen][bvtx],
-			  bbq[ord][se].Y() - bbcm[se][ord][1][bcen][bvtx],
-			  bbq[ord][se].NP(),
-			  bbq[ord][se].M() );
-    }
-    bbq[ord][2] = bbq[ord][0] + bbq[ord][1];
-  }
-
-  hBBCQ1x_Step2[bcen]->Fill( bbq[0][2].X() );
-  hBBCQ1y_Step2[bcen]->Fill( bbq[0][2].Y() );
-  hBBCQ2x_Step2[bcen]->Fill( bbq[1][2].X() );
-  hBBCQ2y_Step2[bcen]->Fill( bbq[1][2].Y() );
-  hBBCQ3x_Step2[bcen]->Fill( bbq[2][2].X() );
-  hBBCQ3y_Step2[bcen]->Fill( bbq[2][2].Y() );
-
-  Psi1_BBC = bbq[0][2].Psi2Pi();
-  Psi2_BBC = bbq[1][2].Psi2Pi();
-  Psi3_BBC = bbq[2][2].Psi2Pi();
-
-  for(int ord=0; ord!=3; ++ord) {
-    for(int iord=0; iord!=32; ++iord) {
-      int nn = 1+iord;
-      hBBCPsiC[ord][bcen]->Fill(bvtx, nn, TMath::Cos(nn*bbq[ord][2].Psi2Pi()) );
-      hBBCPsiS[ord][bcen]->Fill(bvtx, nn, TMath::Sin(nn*bbq[ord][2].Psi2Pi()) );
+  // ======= STAGE 1: Storing Raw Centroids =======
+  for(int j=0; j!=2; ++j) { // subevent
+    for(int k=0; k!=2; ++k) { //order
+      hQxVtx[k][j][bcen]->Fill( bvtx, bbq[k][j].X() );
+      hQyVtx[k][j][bcen]->Fill( bvtx, bbq[k][j].Y() );
     }
   }
 
+
+  // ======= STAGE 2: Recentering SubEvents and Building FullQ  =======
+  for(int k=0; k!=3; ++k) { // order
+    for(int j=0; j!=2; ++j) { // subevent
+      bbq[k][j].SetXY( bbq[k][j].X() - bbcm[j][k][0][bcen][bvtx],
+		       bbq[k][j].Y() - bbcm[j][k][1][bcen][bvtx],
+		       bbq[k][j].NP(),
+		       bbq[k][j].M() );
+    }
+    bbq[k][2] = bbq[k][0] + bbq[k][1];
+    hQx_RC[k][bcen]->Fill( bbq[k][2].X() );
+    hQy_RC[k][bcen]->Fill( bbq[k][2].Y() );
+  }
+
+
+  // ======= STAGE 3A: Storing Flattening Coeficients  =======
+  for(int k=0; k!=3; ++k) { // order
+    for(int ik=0; ik!=32; ++ik) { // correction order
+      int nn = 1+ik;
+      hPsiC[k][bcen]->Fill(bvtx, nn, TMath::Cos(nn*bbq[k][2].Psi2Pi()) );
+      hPsiS[k][bcen]->Fill(bvtx, nn, TMath::Sin(nn*bbq[k][2].Psi2Pi()) );
+    }
+  }
 
 }
