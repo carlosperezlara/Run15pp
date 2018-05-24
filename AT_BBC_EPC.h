@@ -16,14 +16,14 @@ class AT_BBC_EPC : public AT_ReadTree {
   virtual void MyFinish();
 
  private:
-  TH2F *hQxVtx[3][2][60];
-  TH2F *hQyVtx[3][2][60];
+  TH2F *hQxVtx[6][2][60]; // ord se cbin
+  TH2F *hQyVtx[6][2][60]; // ord se cbin
 
-  TH1F *hQx_RC[3][60];
-  TH1F *hQy_RC[3][60];
+  TH1F *hQxC[3][4][2][60]; // step ord se cbin
+  TH1F *hQyC[3][4][2][60]; // step ord se cbin
 
-  TProfile2D *hPsiC[3][60];
-  TProfile2D *hPsiS[3][60];
+  TProfile2D *hPsiC[4][60]; // ord cbin
+  TProfile2D *hPsiS[4][60]; // ord cbin
 };
 
 #endif

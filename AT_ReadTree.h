@@ -19,10 +19,10 @@ class AT_ReadTree : public AnalysisTask {
   virtual void MyExec() {}
   void CheckEP1();
   void CheckEP2();
-  void EPStage(int val) {fEPStage=val;}
   int ReferenceTracks();
 
  private:
+  void MakeBBCEventPlanes(int,int);
   void LoadTableEP(int run=-1);
   TH2F *hEvents;
 
@@ -35,13 +35,13 @@ class AT_ReadTree : public AnalysisTask {
   float fMinBinVtx;
   float fMinBinCen;
 
-  int fEPStage;
   float Psi1_BBC;
   float Psi2_BBC;
   float Psi3_BBC;
-  float bbcm[2][3][2][60][60]; //se ord xy 60 60
-  float bbcc[32][3][60][60];
-  float bbcs[32][3][60][60];
+  float Psi4_BBC;
+  float bbcm[2][6][2][60][40]; //se ord xy bcen bvtx
+  float bbcc[32][6][60][40]; //har ord bcen bvtx
+  float bbcs[32][6][60][40]; //har ord bcen bvtx
 
   typedef struct MyTreeRegister {
     Float_t vtxZ;
@@ -57,12 +57,16 @@ class AT_ReadTree : public AnalysisTask {
   std::vector<qcQ> *pQ3ex;
   std::vector<qcQ> *pQ4ex;
   std::vector<qcQ> *pQ6ex;
+  std::vector<qcQ> *pQ8ex;
   std::vector<qcQ> *pQ1fv;
   std::vector<qcQ> *pQ2fv;
   std::vector<qcQ> *pQ3fv;
   std::vector<qcQ> *pQ1bb;
   std::vector<qcQ> *pQ2bb;
   std::vector<qcQ> *pQ3bb;
+  std::vector<qcQ> *pQ4bb;
+  std::vector<qcQ> *pQ6bb;
+  std::vector<qcQ> *pQ8bb;
   
   std::vector<Int_t>   *pEMCid;
   std::vector<Int_t>   *pEMCtwrid;
