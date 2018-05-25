@@ -16,12 +16,18 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
   fNBinsCen = 60;
   fMinBinVtx = -20.0;
   fMinBinCen = 0.5;
-  for(int ord=0; ord!=6; ++ord) {
-    for(int se=0; se!=2; ++se) {
-      for(int bce=0; bce!=fNBinsCen; ++bce) {
-	for(int bvt=0; bvt!=fNBinsVtx; ++bvt) {
+  for(int bce=0; bce!=fNBinsCen; ++bce) {
+    for(int bvt=0; bvt!=fNBinsVtx; ++bvt) {
+      for(int ord=0; ord!=6; ++ord) {
+	for(int se=0; se!=2; ++se) {
 	  bbcm[se][ord][0][bce][bvt] = 0.0;
 	  bbcm[se][ord][1][bce][bvt] = 0.0;
+	}
+      }
+      for(int ord=0; ord!=4; ++ord) {
+	for(int ior=0; ior!=32; ++ior) {
+	  bbcc[ior][ord][bce][bvt] = 0.0;
+	  bbcs[ior][ord][bce][bvt] = 0.0;
 	}
       }
     }
@@ -101,7 +107,7 @@ void AT_ReadTree::Init() {
 void AT_ReadTree::CheckEP1() {
   std::cout << "CheckEP1 called" << std::endl;
   std::cout << "opening runs.dat" << std::endl;
-  ifstream fin("EventPlaneCalibrator/runs.dat");
+  ifstream fin("runs.dat");
   float bbcqx[2][6][100];
   float bbcqy[2][6][100];
   float runs[100];
@@ -121,7 +127,7 @@ void AT_ReadTree::CheckEP1() {
   TCanvas *main = new TCanvas();
   TGraph *grx[2][6];
   TGraph *gry[2][6];
-  main->Divide(2,6);
+  main->Divide(6,2);
   int color[2] = {kRed-3,kBlue-3};
   for(int ord=0; ord!=6; ++ord) {
     for(int se=0; se!=2; ++se) {
@@ -134,14 +140,14 @@ void AT_ReadTree::CheckEP1() {
       grx[se][ord]->SetLineColor( color[se] );
       gry[se][ord]->SetLineColor( color[se] );
     }
-    main->cd(1+2*ord);
+    main->cd(1+ord+0*6);
     grx[0][ord]->Draw("APL");
     grx[1][ord]->Draw("PLSAME");
-    grx[0][ord]->GetYaxis()->SetRangeUser(-5,+5);
-    main->cd(1+2*ord+1);
+    grx[0][ord]->GetYaxis()->SetRangeUser(-12,+12);
+    main->cd(1+ord+1*6);
     gry[0][ord]->Draw("APL");
     gry[1][ord]->Draw("PLSAME");
-    gry[0][ord]->GetYaxis()->SetRangeUser(-1,+1);
+    gry[0][ord]->GetYaxis()->SetRangeUser(-2,+2);
   }
   main->SaveAs("CheckEP1.root","root");
 }
@@ -149,7 +155,7 @@ void AT_ReadTree::CheckEP1() {
 void AT_ReadTree::CheckEP2() {
   std::cout << "CheckEP2 called" << std::endl;
   std::cout << "opening runs.dat" << std::endl;
-  ifstream fin("EventPlaneCalibrator/runs.dat");
+  ifstream fin("runs.dat");
   float bbcqc[32][6][100];
   float bbcqs[32][6][100];
   float runs[100];
@@ -316,7 +322,7 @@ void AT_ReadTree::LoadTableEP( int run ) {
     run = ana->RunNumber();
     std::cout << " SEGMENT " << ana->SegmentNumber() << std::endl;
   }
-  std::cout << " RUN " << run;
+  std::cout << " RUN " << run << std::endl;
 
   ifstream fin;
   int se, ord, xy, bce, bvt;
@@ -334,19 +340,19 @@ void AT_ReadTree::LoadTableEP( int run ) {
     bbcm[se][ord][xy][bce][bvt] = tmp*1e-1;
   }
   fin.close();
-  std::cout << " BBC ReCenter coefficients loaded: " << nn << std::endl;
+  std::cout << "   BBC ReCenter coefficients loaded: " << nn << std::endl;
   fin.open( Form("BBC_EPC/tables/BBC_A_%d.dat",run) );
   nn=0;
   for(;;++nn) {
     fin >> tmp;
     if(!fin.good()) break;
-    int ord = (nn/230400)%6;
+    int ord = (nn/230400)%4;
     int bce = (nn/3840)%60;
     int bcs = (nn/1920)%2;
     int bor = (nn/40)%32;
     int bvt = nn%40;
-    if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
-    else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
+    //if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
+    //else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
   }
-  std::cout << " BBC Flattening coefficients loaded: " << nn << std::endl;
+  std::cout << "   BBC Flattening coefficients loaded: " << nn << std::endl;
 }

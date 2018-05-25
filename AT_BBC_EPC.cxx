@@ -80,6 +80,7 @@ void AT_BBC_EPC::MyExec() {
     qvec[3][se] = pQ4bb->at(se);
     qvec[4][se] = pQ6bb->at(se);
     qvec[5][se] = pQ8bb->at(se);
+    if(qvec[0][se].M()<1) return;
   }
 
   // ======= STAGE 1: Storing Raw Centroids =======
@@ -115,17 +116,24 @@ void AT_BBC_EPC::MyExec() {
     for(int j=0; j!=2; ++j) { // subevent
       double x = qvec[k][j].X();
       double y = qvec[k][j].Y();
-      double cn  = bbcm[j][k][0][bcen][bvtx];
-      double sn  = bbcm[j][k][1][bcen][bvtx];
-      double c2n = bbcm[j][twon[k]][0][bcen][bvtx];
-      double s2n = bbcm[j][twon[k]][1][bcen][bvtx];
+      double c2n = bbcm[j][twon[k]][0][bcen][bvtx] / qvec[k][j].M();
+      double s2n = bbcm[j][twon[k]][1][bcen][bvtx] / qvec[k][j].M();
       double ldaSm = s2n/(1.0+c2n);
       double ldaSp = s2n/(1.0-c2n);
       double den = 1.0 - ldaSm*ldaSp;
-      qvec[k][j].SetXY( (x-ldaSm*sn) / den,
-		       (y-ldaSp*cn) / den,
-		       qvec[k][j].NP(),
-		       qvec[k][j].M() );
+      qvec[k][j].SetXY( (x-ldaSm*y) / den,
+			(y-ldaSp*x) / den,
+			qvec[k][j].NP(),
+			qvec[k][j].M() );
+      if( TMath::IsNaN( qvec[k][j].X() ) || TMath::IsNaN( qvec[k][j].Y() ) ) {
+	std::cout << "Error building coefficient ";
+	std::cout << " | qvec.M: " << qvec[k][j].M();
+	std::cout << " | c2n: " << c2n;
+	std::cout << " | s2n: " << s2n;
+	std::cout << " | ldaSm: " << ldaSm;
+	std::cout << " | ldaSp: " << ldaSp;
+	std::cout << " | den: " << den << std::endl;
+      }
     }
   }
 
@@ -142,13 +150,18 @@ void AT_BBC_EPC::MyExec() {
     for(int j=0; j!=2; ++j) { // subevent
       double x = qvec[k][j].X();
       double y = qvec[k][j].Y();
-      double c2n = bbcm[j][twon[k]][0][bcen][bvtx];
+      double c2n = bbcm[j][twon[k]][0][bcen][bvtx] / qvec[k][j].M();
       double a2np = 1.0+c2n;
       double a2nm = 1.0-c2n;
       qvec[k][j].SetXY( x / a2np,
-		       y / a2nm,
-		       qvec[k][j].NP(),
-		       qvec[k][j].M() );
+			y / a2nm,
+			qvec[k][j].NP(),
+			qvec[k][j].M() );
+      if( TMath::IsNaN( qvec[k][j].X() ) || TMath::IsNaN( qvec[k][j].Y() ) ) {
+	std::cout << "Error building coefficient [2] ";
+	std::cout << " | a2np: " << a2np;
+	std::cout << " | a2nm: " << a2nm << std::endl;
+      }
     }
   }
 

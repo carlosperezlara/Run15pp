@@ -40,8 +40,8 @@ class AT_ReadTree : public AnalysisTask {
   float Psi3_BBC;
   float Psi4_BBC;
   float bbcm[2][6][2][60][40]; //se ord xy bcen bvtx
-  float bbcc[32][6][60][40]; //har ord bcen bvtx
-  float bbcs[32][6][60][40]; //har ord bcen bvtx
+  float bbcc[32][4][60][40]; //har ord bcen bvtx
+  float bbcs[32][4][60][40]; //har ord bcen bvtx
 
   typedef struct MyTreeRegister {
     Float_t vtxZ;
