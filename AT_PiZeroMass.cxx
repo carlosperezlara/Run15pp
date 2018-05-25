@@ -84,7 +84,7 @@ void AT_PiZeroMass::MyExec() {
     float it = pEMCtimef->at(icl);
     EmcIndexer::decodeTowerId(idx,isc,z,y);
     if( IsBad(isc,y,z) ) continue;
-    if( fabs(it)<5 )continue;
+    if( fabs(it)>5 )continue;
     //=== loading cluster i
     float iecore = pEMCecore->at(icl);
     float ix = pEMCx->at(icl);
@@ -102,7 +102,7 @@ void AT_PiZeroMass::MyExec() {
       EmcIndexer::decodeTowerId(jdx,jsc,z,y);
       if(isc!=jsc) continue;
       if( IsBad(jsc,y,z) ) continue;
-      if( fabs(jt)<5 )continue;
+      if( fabs(jt)>5 )continue;
       //=== loading cluster j
       float jecore = pEMCecore->at(jcl);
       float jx = pEMCx->at(jcl);
@@ -129,9 +129,7 @@ void AT_PiZeroMass::MyExec() {
       fCandidates.push_back( pp );
       
       hPizeroMass->Fill( pp.M(), pp.Pt() );
-      if(pp.Pt()>1) {
-	hPizeroM[isc]->Fill( pp.M(),pp.Pt());
-      }
+      hPizeroM[isc]->Fill( pp.M(),pp.Pt());
     }
   }
 }
