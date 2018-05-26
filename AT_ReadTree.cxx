@@ -99,8 +99,6 @@ void AT_ReadTree::Init() {
 
   LoadTableEP();
 
-  hEvents = new TH2F("Events",";vtx;cent",40,-20.0,+20.0,10,0.5,10.5);
-
   MyInit();
 }
 
@@ -214,12 +212,10 @@ void AT_ReadTree::CheckEP2() {
 
 
 void AT_ReadTree::Finish() {
-  hEvents->Write();
   MyFinish();
 }
 
 AT_ReadTree::~AT_ReadTree() {
-  if(hEvents) delete hEvents;
 }
 
 void AT_ReadTree::Exec() {
@@ -244,9 +240,6 @@ void AT_ReadTree::Exec() {
   //std::cout << "  " << bcen << " " << bvtx << std::endl;
 
   if(bvtx<0 || bcen<0) return;
-
-  hEvents->Fill(vtx,cen);
-  //std::cout << hEvents->GetEntries() << std::endl;
 
   MakeBBCEventPlanes(bcen,bvtx);
 
