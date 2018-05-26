@@ -242,34 +242,103 @@ void AT_ReadTree::Exec() {
   if(bvtx<0 || bcen<0) return;
 
   MakeBBCEventPlanes(bcen,bvtx);
-
   MyExec();
 }
 
 //BBC EVENTPLANE
 void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
-  return;
-  qcQ bbq[4][3];
+  Psi_BBC = true;
+  Psi1_BBC = 0;
+  Psi2_BBC = 0;
+  Psi3_BBC = 0;
+  Psi4_BBC = 0;
+  qcQ qvec[4][3];
   for(int se=0; se!=2; ++se) {
-    bbq[0][se] = pQ1bb->at(se);
-    bbq[1][se] = pQ2bb->at(se);
-    bbq[2][se] = pQ3bb->at(se);
-    bbq[3][se] = pQ4bb->at(se);
-    for(int ord=0; ord!=4; ++ord) {
-      bbq[ord][se].SetXY( bbq[ord][se].X() - bbcm[se][ord][0][bcen][bvtx],
-			  bbq[ord][se].Y() - bbcm[se][ord][1][bcen][bvtx],
-			  bbq[ord][se].NP(),
-			  bbq[ord][se].M() );
+    qvec[0][se] = pQ1bb->at(se);
+    qvec[1][se] = pQ2bb->at(se);
+    qvec[2][se] = pQ3bb->at(se);
+    qvec[3][se] = pQ4bb->at(se);
+    if(qvec[0][se].M()<1) {
+      Psi_BBC = false;
+      return;
     }
   }
-  for(int ord=0; ord!=4; ++ord) {
-    bbq[ord][2] = bbq[ord][0] + bbq[ord][1];
+
+  // ======= STAGE 2: Recentering SubEvents (STEP1)  =======
+  for(int k=0; k!=4; ++k) { // order
+    for(int j=0; j!=2; ++j) { // subevent
+      double x = qvec[k][j].X();
+      double y = qvec[k][j].Y();
+      double cn = bbcm[j][k][0][bcen][bvtx];
+      double sn = bbcm[j][k][1][bcen][bvtx];
+      qvec[k][j].SetXY( x - cn, y - sn, qvec[k][j].NP(), qvec[k][j].M() );
+    }
   }
 
-  Psi1_BBC = bbq[0][2].Psi();
-  Psi2_BBC = bbq[1][2].Psi();
-  Psi3_BBC = bbq[2][2].Psi();
-  Psi4_BBC = bbq[4][2].Psi();
+  int twon[4] = {1,3,4,5}; // 1,2,3,4,6,8
+  // ======= STAGE 4: Twisting SubEvents (STEP2)  =======
+  for(int k=0; k!=4; ++k) { // order
+    for(int j=0; j!=2; ++j) { // subevent
+      double x = qvec[k][j].X();
+      double y = qvec[k][j].Y();
+      double c2n = bbcm[j][twon[k]][0][bcen][bvtx] / qvec[k][j].M();
+      double s2n = bbcm[j][twon[k]][1][bcen][bvtx] / qvec[k][j].M();
+      double ldaSm = s2n/(1.0+c2n);
+      double ldaSp = s2n/(1.0-c2n);
+      double den = 1.0 - ldaSm*ldaSp;
+      qvec[k][j].SetXY( (x-ldaSm*y) / den,
+                        (y-ldaSp*x) / den,
+                        qvec[k][j].NP(),
+                        qvec[k][j].M() );
+      if( TMath::IsNaN( qvec[k][j].X() ) || TMath::IsNaN( qvec[k][j].Y() ) ) {
+	std::cout << "Error building coefficient ";
+	std::cout << " | qvec.M: " << qvec[k][j].M();
+	std::cout << " | c2n: " << c2n;
+	std::cout << " | s2n: " << s2n;
+	std::cout << " | ldaSm: " << ldaSm;
+	std::cout << " | ldaSp: " << ldaSp;
+	std::cout << " | den: " << den << std::endl;
+      }
+    }
+  }
+
+  // ======= STAGE 6: Rescaling SubEvents (STEP3)  =======
+  for(int k=0; k!=4; ++k) { // order
+    for(int j=0; j!=2; ++j) { // subevent
+      double x = qvec[k][j].X();
+      double y = qvec[k][j].Y();
+      double c2n = bbcm[j][twon[k]][0][bcen][bvtx] / qvec[k][j].M();
+      double a2np = 1.0+c2n;
+      double a2nm = 1.0-c2n;
+      qvec[k][j].SetXY( x / a2np,
+                        y / a2nm,
+                        qvec[k][j].NP(),
+                        qvec[k][j].M() );
+      if( TMath::IsNaN( qvec[k][j].X() ) || TMath::IsNaN( qvec[k][j].Y() ) ) {
+	std::cout << "Error building coefficient [2] ";
+	std::cout << " | a2np: " << a2np;
+	std::cout << " | a2nm: " << a2nm << std::endl;
+      }
+    }
+  }
+
+  // ======= STAGE 8: Bulding Full Q and Storing Flattening Coeficients  =======
+  double delta[4] = {0,0,0,0};
+  for(int k=0; k!=4; ++k) { // order
+    qvec[k][2] = qvec[k][0] + qvec[k][1];
+    double psi = qvec[k][2].Psi2Pi();
+    for(int ik=0; ik!=32; ++ik) { // correction order
+      int nn = ik+1;
+      delta[k] += TMath::Cos(nn*psi)*bbcc[ik][k][bcen][bvtx];
+      delta[k] += TMath::Sin(nn*psi)*bbcs[ik][k][bcen][bvtx];
+    }
+  }
+
+  Psi1_BBC = qvec[0][2].Psi2Pi()+delta[0];
+  Psi2_BBC = qvec[1][2].Psi2Pi()+delta[1];
+  Psi3_BBC = qvec[2][2].Psi2Pi()+delta[2];
+  Psi4_BBC = qvec[3][2].Psi2Pi()+delta[3];
+
 }
 
 int AT_ReadTree::ReferenceTracks() {
@@ -344,8 +413,8 @@ void AT_ReadTree::LoadTableEP( int run ) {
     int bcs = (nn/1920)%2;
     int bor = (nn/40)%32;
     int bvt = nn%40;
-    //if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
-    //else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
+    if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
+    else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
   }
   std::cout << "   BBC Flattening coefficients loaded: " << nn << std::endl;
 }

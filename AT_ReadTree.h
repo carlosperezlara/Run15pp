@@ -35,6 +35,7 @@ class AT_ReadTree : public AnalysisTask {
   float fMinBinVtx;
   float fMinBinCen;
 
+  bool Psi_BBC;
   float Psi1_BBC;
   float Psi2_BBC;
   float Psi3_BBC;

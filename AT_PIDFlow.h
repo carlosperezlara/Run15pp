@@ -17,11 +17,13 @@ class AT_PIDFlow : public AT_ReadTree {
  private:
   TH1F *hPt;
   TH1F *hNTrk;
-  TH2F *hPtDPhi[3];
-  TH2F *hPtDPhiME[3];
+  TH2F *hPtDPhi[4];
+  TH2F *hPtDPhiME[4];
+  TH1F *hEP_BBC[4];
   float fPsi1_BBC_PE;
   float fPsi2_BBC_PE;
   float fPsi3_BBC_PE;
+  float fPsi4_BBC_PE;
 
 };
 

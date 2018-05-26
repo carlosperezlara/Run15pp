@@ -1,6 +1,5 @@
 int qcent(int run=454777) {
   TFile *file = new TFile( Form("out/run%d.root",run) );
-  //TFile *file = new TFile( "out/out_454777_12.root" );
   TH2F *QH;
   TH1D *h;
   ofstream fout( Form("tables/BBC_%d.dat",run) );
