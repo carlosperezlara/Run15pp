@@ -1,5 +1,5 @@
 #include "Analysis.h"
-#include "AT_PiZeroMass.h"
+#include "AT_PiZero.h"
 
 int main(int argc, char *argv[]){
   if(argc<3) {
@@ -11,11 +11,11 @@ int main(int argc, char *argv[]){
 
   Analysis *ana = Analysis::Instance();
   ana->InputFileName( Form("trees/%s.root",run.Data()) );
-  ana->OutputFileName( Form("PiZeroMass/out/out_%s.root",run.Data()) );
+  ana->OutputFileName( Form("PiZero/out/out_%s.root",run.Data()) );
   ana->DataSetTag( run );
   ana->NumberOfEventsToAnalyze( nev );
 
-  AT_PiZeroMass *tsk = new AT_PiZeroMass();
+  AT_PiZero *tsk = new AT_PiZero();
   ana->AddTask( tsk );
 
   ana->Run();

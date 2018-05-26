@@ -6,13 +6,13 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include "Analysis.h"
-#include "AT_PiZeroMass.h"
+#include "AT_PiZero.h"
 #include "EmcIndexer.h"
 #include "EmcIndexer.C"
 #include "PbGlIndexer.C"
 #include "PbScIndexer.C"
 
-AT_PiZeroMass::AT_PiZeroMass() : AT_ReadTree() {
+AT_PiZero::AT_PiZero() : AT_ReadTree() {
   for (int i = 0; i < 8; ++i){
     for (int j = 0; j < 48; ++j){
       for (int k = 0; k < 96; ++k){
@@ -21,7 +21,8 @@ AT_PiZeroMass::AT_PiZeroMass() : AT_ReadTree() {
     }
   }
   TString fname = "Run16dAu200WarnMap.list";
-  std::cout << "AT_PiZeroMass::Ctor === is reading EMCal dead map: " << fname.Data() << std::endl;
+  std::cout << "AT_PiZero::Ctor === is reading EMCal dead map: ";
+  std::cout << fname.Data() << std::endl;
   int armsect = 0, ypos = 0, zpos = 0, status = 0;
   ifstream readmap( fname.Data() );
   while(readmap >> armsect >> ypos >> zpos >> status) {
@@ -29,30 +30,44 @@ AT_PiZeroMass::AT_PiZeroMass() : AT_ReadTree() {
     //if(status==-1)EMCMAP[armsect][ypos][zpos] = 0; // this is for ERT trigger
   }
   readmap.close();
+  fQA = false;
+  hVertex = NULL;
+  hCentrality = NULL;
+  for(int i=0; i!=4; ++i) {
+    for(int j=0; j!=8; ++j) {
+      hPizeroMass[i][j] = NULL;
+    }
+  }
 }
-AT_PiZeroMass::~AT_PiZeroMass() {
+AT_PiZero::~AT_PiZero() {
 }
 
-void AT_PiZeroMass::MyInit() {
-  hVertex = new TH1F("Vertex","",100,-30,+30);
-  hCentrality = new TH1F("Centrality","",100,0,100);
-  hPizeroMass = new TH2F("PizeroMass",";Mass;pT", 100,0.0,0.7, 150,0,15);
-  for(int i=0; i!=8; ++i){
-    hPizeroM[i] = new TH2F(Form("PizeroMass_Sector%d",i),"Mass;pT", 100,0.0,0.7, 150,0,15);
+void AT_PiZero::MyInit() {
+  if(fQA) {
+    hVertex = new TH1F("Vertex","",100,-30,+30);
+    hCentrality = new TH1F("Centrality","",100,0,100);
+    for(int i=0; i!=4; ++i) {
+      for(int j=0; j!=8; ++j) {
+	hPizeroMass[i][j] = new TH2F(Form("PizeroMass_Cut%d_Sector%d",i,j),
+				     "Mass;pT", 100,0.0,0.7, 150,0,15);
+      }
+    }
   }
 }
 
-void AT_PiZeroMass::MyFinish() {
-  std::cout << hCentrality->GetName() << std::endl;
-  hVertex->Write();
-  hCentrality->Write();
-  hPizeroMass->Write();
-  for(int i=0; i!=8; ++i){
-    hPizeroM[i]->Write();
+void AT_PiZero::MyFinish() {
+  if(fQA) {
+    hVertex->Write();
+    hCentrality->Write();
+    for(int i=0; i!=4; ++i) {
+      for(int j=0; j!=8; ++j) {
+	hPizeroMass[i][j]->Write();
+      }
+    }
   }
 }
 
-void AT_PiZeroMass::MyExec() {
+void AT_PiZero::MyExec() {
   fCandidates.clear();
   
   //====== EVENT SELECTION ======
@@ -70,8 +85,8 @@ void AT_PiZeroMass::MyExec() {
   if(!trig) return;
   if(fabs(vtxZ)>20) return;
   
-  hCentrality->Fill(cent);
-  hVertex->Fill(vtxZ);
+  if(fQA) hCentrality->Fill(cent);
+  if(fQA) hVertex->Fill(vtxZ);
   //============
   
   
@@ -84,7 +99,6 @@ void AT_PiZeroMass::MyExec() {
     float it = pEMCtimef->at(icl);
     EmcIndexer::decodeTowerId(idx,isc,z,y);
     if( IsBad(isc,y,z) ) continue;
-    if( fabs(it)>5 )continue;
     //=== loading cluster i
     float iecore = pEMCecore->at(icl);
     float ix = pEMCx->at(icl);
@@ -102,7 +116,6 @@ void AT_PiZeroMass::MyExec() {
       EmcIndexer::decodeTowerId(jdx,jsc,z,y);
       if(isc!=jsc) continue;
       if( IsBad(jsc,y,z) ) continue;
-      if( fabs(jt)>5 )continue;
       //=== loading cluster j
       float jecore = pEMCecore->at(jcl);
       float jx = pEMCx->at(jcl);
@@ -121,20 +134,22 @@ void AT_PiZeroMass::MyExec() {
 				 +(iy-jy)*(iy-jy)
 				 +(iz-jz)*(iz-jz) );
       float alpha = TMath::Abs(iecore-jecore)/(iecore+jecore);
-      if(dist<8) continue;
-      if(alpha>0.8) continue;
       if(pp.Pt()<0.8) continue;
       if(pp.Pt()>16.0) continue;
-      
+      if(fQA) hPizeroMass[0][isc]->Fill( pp.M(),pp.Pt()); // step0
+      if(dist<8) continue;
+      if(fQA) hPizeroMass[1][isc]->Fill( pp.M(),pp.Pt()); // step1
+      if(alpha>0.8) continue;
+      if(fQA) hPizeroMass[2][isc]->Fill( pp.M(),pp.Pt()); // step2
+      if( fabs(it)>5 )continue;
+      if( fabs(jt)>5 )continue;
+      if(fQA) hPizeroMass[3][isc]->Fill( pp.M(),pp.Pt()); // step3
       fCandidates.push_back( pp );
-      
-      hPizeroMass->Fill( pp.M(), pp.Pt() );
-      hPizeroM[isc]->Fill( pp.M(),pp.Pt());
     }
   }
 }
 
-bool AT_PiZeroMass::IsBad(int isc, int y, int z) {
+bool AT_PiZero::IsBad(int isc, int y, int z) {
   bool ret = false;
 
   // convert to veronica convention for sectors
