@@ -2,7 +2,7 @@ N = 3926
 ID = $(Cluster).$(Process) 
 
 Universe       = vanilla
-Initialdir     = /gpfs/mnt/gpfs02/phenix/mpcex/cperez/treeAnalysis/
+Initialdir     = /gpfs/mnt/gpfs02/phenix/plhf/plhf1/vcanoa/dp/github/treeAnalysis
 Executable     = /bin/csh
 Arguments      = dojob.csh $(Process)
 
