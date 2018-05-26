@@ -16,6 +16,7 @@ int main(int argc, char *argv[]){
   ana->NumberOfEventsToAnalyze( nev );
 
   AT_PiZero *tsk = new AT_PiZero();
+  tsk->DoQA();
   ana->AddTask( tsk );
 
   ana->Run();

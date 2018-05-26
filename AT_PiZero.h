@@ -7,6 +7,7 @@
 
 class TH1F;
 class TH2F;
+class TProfile;
 
 class AT_PiZero : public AT_ReadTree {
  public:
@@ -15,6 +16,7 @@ class AT_PiZero : public AT_ReadTree {
   virtual void MyInit();
   virtual void MyExec();
   virtual void MyFinish();
+  void DoQA() {fQA=true;}
 
  private:
   bool IsBad(int sc, int y, int z);
@@ -23,6 +25,8 @@ class AT_PiZero : public AT_ReadTree {
   bool fQA;
   TH1F *hVertex;
   TH1F *hCentrality;
+  TProfile *hNClu0;
+  TProfile *hNClu1;
   TH2F *hPizeroMass[4][8]; // Step Section
 
  protected:

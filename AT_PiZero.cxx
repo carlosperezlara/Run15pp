@@ -5,6 +5,7 @@
 #include <TTree.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TProfile.h>
 #include "Analysis.h"
 #include "AT_PiZero.h"
 #include "EmcIndexer.h"
@@ -33,6 +34,8 @@ AT_PiZero::AT_PiZero() : AT_ReadTree() {
   fQA = false;
   hVertex = NULL;
   hCentrality = NULL;
+  hNClu0 = NULL;
+  hNClu1 = NULL;
   for(int i=0; i!=4; ++i) {
     for(int j=0; j!=8; ++j) {
       hPizeroMass[i][j] = NULL;
@@ -46,6 +49,8 @@ void AT_PiZero::MyInit() {
   if(fQA) {
     hVertex = new TH1F("Vertex","",100,-30,+30);
     hCentrality = new TH1F("Centrality","",100,0,100);
+    hNClu0 = new TProfile("hNClu0","<NClu> exc. bad towers",8,-0.5,7.5);
+    hNClu1 = new TProfile("hNClu1","<NClu> exc. bad towers and timing",8,-0.5,7.5);
     for(int i=0; i!=4; ++i) {
       for(int j=0; j!=8; ++j) {
 	hPizeroMass[i][j] = new TH2F(Form("PizeroMass_Cut%d_Sector%d",i,j),
@@ -59,6 +64,8 @@ void AT_PiZero::MyFinish() {
   if(fQA) {
     hVertex->Write();
     hCentrality->Write();
+    hNClu0->Write();
+    hNClu1->Write();
     for(int i=0; i!=4; ++i) {
       for(int j=0; j!=8; ++j) {
 	hPizeroMass[i][j]->Write();
@@ -91,6 +98,8 @@ void AT_PiZero::MyExec() {
   
   
   //====== MAIN LOOP ON CLUSTERS ======
+  int nclu0[8] = {0,0,0,0,0,0,0,0};
+  int nclu1[8] = {0,0,0,0,0,0,0,0};
   int isc, jsc;
   int y, z;
   uint nclu = pEMCecore->size();
@@ -99,6 +108,8 @@ void AT_PiZero::MyExec() {
     float it = pEMCtimef->at(icl);
     EmcIndexer::decodeTowerId(idx,isc,z,y);
     if( IsBad(isc,y,z) ) continue;
+    nclu0[isc]++;
+    if( fabs(it)<5 ) nclu1[isc]++;
     //=== loading cluster i
     float iecore = pEMCecore->at(icl);
     float ix = pEMCx->at(icl);
@@ -145,6 +156,13 @@ void AT_PiZero::MyExec() {
       if( fabs(jt)>5 )continue;
       if(fQA) hPizeroMass[3][isc]->Fill( pp.M(),pp.Pt()); // step3
       fCandidates.push_back( pp );
+    }
+  }
+
+  if(fQA) {
+    for(int i=0; i!=8; ++i) {
+      hNClu0->Fill( i, nclu0[i] );
+      hNClu1->Fill( i, nclu1[i] );
     }
   }
 }
