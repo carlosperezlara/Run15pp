@@ -1,9 +1,12 @@
 #ifndef __Analysis_HH__
 #define __Analysis_HH__
 
+#include <vector>
 #include <TString.h>
 #include <TList.h>
 #include <TH2F.h>
+#include <TLorentzVector.h>
+#include "qcQ.h"
 #include "AnalysisTask.h"
 
 class TFile;
@@ -28,8 +31,11 @@ class Analysis {
   void NumberOfEventsToAnalyze(Long64_t nev) {fNoEventsAnalyzed = nev;}
   TTree* GetTree() {return fTree;}
   TString GetInputFileName() {return fInputFileName;} // used for calibration purposes
+  std::vector<TLorentzVector>* GetCandidates() {return fCandidates;}
+  qcQ* GetQ(int n) {return fQ[n];}
   int RunNumber();
   int SegmentNumber();
+
  protected:
   Analysis();
   
@@ -43,6 +49,8 @@ class Analysis {
   TList *fListOfTasks;
   TFile *fInputFile;
   TTree *fTree;
+  std::vector<TLorentzVector> *fCandidates;
+  qcQ *fQ[4];
 };
 
 #endif

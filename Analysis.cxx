@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include <TString.h>
 #include <TList.h>
@@ -7,6 +8,7 @@
 #include <TTree.h>
 #include <TObjArray.h>
 #include <TObjString.h>
+#include <TLorentzVector.h>
 
 #include "Analysis.h"
 #include "AnalysisTask.h"
@@ -23,11 +25,17 @@ Analysis::Analysis() {
   fListOfTasks->SetOwner();
   fInputFile = NULL;
   fTree = NULL;
+  fCandidates = new std::vector<TLorentzVector>;
+  for(int i=0; i!=4; ++i)
+    fQ[i] = new qcQ(i+1);
 }
 //=====
 Analysis::~Analysis() {
   delete fListOfTasks;
   if(fInputFile) delete fInputFile;
+  delete fCandidates;
+  for(int i=0; i!=4; ++i)
+    delete fQ[i];
 }
 //=====
 void Analysis::Init() {

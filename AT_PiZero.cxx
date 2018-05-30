@@ -6,7 +6,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile.h>
-#include "Analysis.h"
 #include "AT_PiZero.h"
 #include "EmcIndexer.h"
 #include "EmcIndexer.C"
@@ -75,7 +74,7 @@ void AT_PiZero::MyFinish() {
 }
 
 void AT_PiZero::MyExec() {
-  fCandidates.clear();
+  fCandidates->clear();
   
   //====== EVENT SELECTION ======
   float cent = fGLB.cent;
@@ -155,7 +154,7 @@ void AT_PiZero::MyExec() {
       if( fabs(it)>5 )continue;
       if( fabs(jt)>5 )continue;
       if(fQA) hPizeroMass[3][isc]->Fill( pp.M(),pp.Pt()); // step3
-      fCandidates.push_back( pp );
+      fCandidates->push_back( pp );
     }
   }
 

@@ -28,9 +28,6 @@ class AT_PiZero : public AT_ReadTree {
   TProfile *hNClu0;
   TProfile *hNClu1;
   TH2F *hPizeroMass[4][8]; // Step Section
-
- protected:
-  std::vector<TLorentzVector> fCandidates;
 };
 
 #endif

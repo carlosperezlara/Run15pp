@@ -22,10 +22,12 @@ AT_PIDFlow::~AT_PIDFlow() {
 void AT_PIDFlow::MyInit() {
   hPt =   new TH1F("hPt",  "hPt", 100,0.0,5.0);
   hNTrk = new TH1F("hNTrk","hNTrk",100,-0.5,99.5);
+  double twopi = TMath::TwoPi();
+  int nbin[4] = {50,30,20,20};
   for(int ord=0; ord!=4; ++ord) {
     int nh = ord+1;
-    hPtDPhi[ord] = new TH2F(Form("hPtDPhi%d",nh), Form(";pt;phi-Psi%d",nh), 100,0.0,5.0,100,-7,7);
-    hPtDPhiME[ord] = new TH2F(Form("hPtDPhi%dME",nh),Form(";pt;phi-Psi%d",nh), 100,0.0,5.0,100,-7,7);
+    hPtDPhi[ord] = new TH2F(Form("hPtDPhi%d",nh), Form(";pt;phi-Psi%d",nh),    100,0.0,5.0, nbin[ord],-twopi,+twopi);
+    hPtDPhiME[ord] = new TH2F(Form("hPtDPhi%dME",nh),Form(";pt;phi-Psi%d",nh), 100,0.0,5.0, nbin[ord],-twopi,+twopi);
     hEP_BBC[ord] = new TH1F(Form("hPsi%d_BBC",nh),Form(";Psi%d",nh),100,0,7);
   }
 }

@@ -36,6 +36,9 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
 
 void AT_ReadTree::Init() {
   Analysis *ana = Analysis::Instance();
+  fCandidates = ana->GetCandidates();
+   for(int i=0; i!=4; ++i) fQ[i] = ana->GetQ(i);
+
   TTree *tree = ana->GetTree();
   if(!tree) {
     std::cout << "AT_ReadTree:Init says: Tree not found." << std::endl;
@@ -326,6 +329,7 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
   double delta[4] = {0,0,0,0};
   for(int k=0; k!=4; ++k) { // order
     qvec[k][2] = qvec[k][0] + qvec[k][1];
+    fQ[k]->CopyFrom( qvec[k][2] );
     double psi = qvec[k][2].Psi2Pi();
     for(int ik=0; ik!=32; ++ik) { // correction order
       int nn = ik+1;
