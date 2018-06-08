@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <TTree.h>
-#include <TH2F.h>
+#include <TH1F.h>
 #include <TFile.h>
 #include <TMath.h>
 #include <TCanvas.h>
@@ -10,12 +10,19 @@
 #include "AT_ReadTree.h"
 
 AT_ReadTree::AT_ReadTree() : AnalysisTask() {
-  // -30.0 ==> +30.0 (60+1)
-  // 0.5 ==> 60.5 (50+1)
+  // -20.0 ==> +20.0 (40+1)
+  // 0.5 ==> 60.5 (60+1)
+  fBBCQCal = true;
+  Psi_BBC = false;
   fNBinsVtx = 40;
   fNBinsCen = 60;
   fMinBinVtx = -20.0;
   fMinBinCen = 0.5;
+  unsigned int kBBCnc = 0x00000008;
+  unsigned int kBBCn  = 0x00000010;
+  fMask = kBBCnc | kBBCn;
+  fCentralityMin = 0.0;
+  fCentralityMax = 80.0;
   for(int bce=0; bce!=fNBinsCen; ++bce) {
     for(int bvt=0; bvt!=fNBinsVtx; ++bvt) {
       for(int ord=0; ord!=6; ++ord) {
@@ -37,8 +44,15 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
 void AT_ReadTree::Init() {
   Analysis *ana = Analysis::Instance();
   fCandidates = ana->GetCandidates();
-   for(int i=0; i!=4; ++i) fQ[i] = ana->GetQ(i);
+  fCandidates2= ana->GetCandidates2();
+  for(int i=0; i!=4; ++i) fQ[i] = ana->GetQ(i);
+  hEvents = new TH1F("hEvents","hEvents",4,-0.5,3.5);
+  hEvents->GetXaxis()->SetBinLabel(1,"AllEvents");
+  hEvents->GetXaxis()->SetBinLabel(2,"AT_ReadTree");
+  hEvents->GetXaxis()->SetBinLabel(3,"AT_X");
 
+  hCentrality0 = new TH1F("hCentrality0","hCentrality0",100,-0.5,99.5);
+  
   TTree *tree = ana->GetTree();
   if(!tree) {
     std::cout << "AT_ReadTree:Init says: Tree not found." << std::endl;
@@ -157,8 +171,8 @@ void AT_ReadTree::CheckEP2() {
   std::cout << "CheckEP2 called" << std::endl;
   std::cout << "opening runs.dat" << std::endl;
   ifstream fin("runs.dat");
-  float bbcqc[32][6][100];
-  float bbcqs[32][6][100];
+  float bbcqc[32][4][100];
+  float bbcqs[32][4][100];
   float runs[100];
   int run;
   int ir = 0;
@@ -167,7 +181,7 @@ void AT_ReadTree::CheckEP2() {
     LoadTableEP(run);
     runs[ir] = run;
     for(int se=0; se!=32; ++se) {
-      for(int ord=0; ord!=6; ++ord) {
+      for(int ord=0; ord!=4; ++ord) {
 	bbcqc[se][ord][ir] = bbcc[se][ord][3][20]; // bce=2 bvtx=20
 	bbcqs[se][ord][ir] = bbcs[se][ord][3][20]; // bce=2 bvtx=20
       }
@@ -175,12 +189,12 @@ void AT_ReadTree::CheckEP2() {
   }
   TCanvas *main1 = new TCanvas();
   TCanvas *main2 = new TCanvas();
-  TGraph *grx[32][6];
-  TGraph *gry[32][6];
-  main1->Divide(8,6);
-  main2->Divide(8,6);
+  TGraph *grx[32][4];
+  TGraph *gry[32][4];
+  main1->Divide(8,4);
+  main2->Divide(8,4);
   int color[4] = { kRed-3, kOrange-3, kCyan-3, kBlue-3};
-  for(int ord=0; ord!=6; ++ord) {
+  for(int ord=0; ord!=4; ++ord) {
     for(int se=0; se!=32; ++se) {
       grx[se][ord] = new TGraph( ir, runs, bbcqc[se][ord] );
       gry[se][ord] = new TGraph( ir, runs, bbcqs[se][ord] );
@@ -215,24 +229,27 @@ void AT_ReadTree::CheckEP2() {
 
 
 void AT_ReadTree::Finish() {
+  hEvents->Write();
+  hCentrality0->Write();
   MyFinish();
 }
 
 AT_ReadTree::~AT_ReadTree() {
+  if(hEvents) delete hEvents;
+  if(hCentrality0) delete hCentrality0;
 }
 
 void AT_ReadTree::Exec() {
+  hEvents->Fill(0);
   float vtx = fGLB.vtxZ;
   float cen = fGLB.cent;
   unsigned int trigger = fGLB.trig;
-  unsigned int kBBCnc = 0x00000008;
-  unsigned int kBBCn  = 0x00000010;
-  unsigned int  mask = kBBCnc | kBBCn;
   bool trig = false;
-  if(trigger & mask) trig = true;
+  if(trigger & fMask) trig = true;
   float frac = fGLB.frac;
 
   if(cen<0.5||cen>60.5) return;
+  if(cen<fCentralityMin||cen>fCentralityMax) return;
   if(!trig) return;
   if(frac<0.95) return;
   if(TMath::Abs(vtx)>20) return;
@@ -243,14 +260,16 @@ void AT_ReadTree::Exec() {
   //std::cout << "  " << bcen << " " << bvtx << std::endl;
 
   if(bvtx<0 || bcen<0) return;
+  hEvents->Fill(1);
+  hCentrality0->Fill(cen);
 
-  MakeBBCEventPlanes(bcen,bvtx);
+  if(fBBCQCal) MakeBBCEventPlanes(bcen,bvtx);
   MyExec();
 }
 
 //BBC EVENTPLANE
 void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
-  Psi_BBC = true;
+  Psi_BBC;
   Psi1_BBC = 0;
   Psi2_BBC = 0;
   Psi3_BBC = 0;
@@ -329,13 +348,18 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
   double delta[4] = {0,0,0,0};
   for(int k=0; k!=4; ++k) { // order
     qvec[k][2] = qvec[k][0] + qvec[k][1];
-    fQ[k]->CopyFrom( qvec[k][2] );
     double psi = qvec[k][2].Psi2Pi();
     for(int ik=0; ik!=32; ++ik) { // correction order
       int nn = ik+1;
-      delta[k] += TMath::Cos(nn*psi)*bbcc[ik][k][bcen][bvtx];
-      delta[k] += TMath::Sin(nn*psi)*bbcs[ik][k][bcen][bvtx];
+      delta[k] -= TMath::Cos(nn*psi)*bbcs[ik][k][bcen][bvtx]*2.0/nn;
+      delta[k] += TMath::Sin(nn*psi)*bbcc[ik][k][bcen][bvtx]*2.0/nn;
     }
+    fQ[k]->CopyFrom( qvec[k][2] );
+    double cn = TMath::Cos( (k+1)*delta[k] );
+    double sn = TMath::Sin( (k+1)*delta[k] );
+    double xprime = fQ[k]->X()*cn - fQ[k]->Y()*sn;
+    double yprime = fQ[k]->X()*sn + fQ[k]->Y()*cn;
+    fQ[k]->SetXY( xprime, yprime, fQ[k]->NP(),fQ[k]->M() );
   }
 
   Psi1_BBC = qvec[0][2].Psi2Pi()+delta[0];
@@ -343,6 +367,14 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
   Psi3_BBC = qvec[2][2].Psi2Pi()+delta[2];
   Psi4_BBC = qvec[3][2].Psi2Pi()+delta[3];
 
+  /*
+  if( (TMath::Abs( fQ[0]->Psi2Pi() - Psi1_BBC ) < 1e-4) ||
+      (TMath::Abs( fQ[1]->Psi2Pi() - Psi2_BBC ) < 1e-4) ||
+      (TMath::Abs( fQ[2]->Psi2Pi() - Psi3_BBC ) < 1e-4) ||
+      (TMath::Abs( fQ[3]->Psi2Pi() - Psi4_BBC ) < 1e-4)
+      )
+    std::cout << "NOT COMPATIBLE" << std::endl;
+  */
 }
 
 int AT_ReadTree::ReferenceTracks() {
@@ -412,9 +444,9 @@ void AT_ReadTree::LoadTableEP( int run ) {
   for(;;++nn) {
     fin >> tmp;
     if(!fin.good()) break;
-    int ord = (nn/230400)%4;
-    int bce = (nn/3840)%60;
-    int bcs = (nn/1920)%2;
+    int ord = (nn/153600)%4;
+    int bce = (nn/2560)%60;
+    int bcs = (nn/1280)%2;
     int bor = (nn/40)%32;
     int bvt = nn%40;
     if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;

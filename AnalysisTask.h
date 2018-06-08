@@ -12,6 +12,7 @@ class AnalysisTask : public TObject { // needed to add to TLists
  public:
   AnalysisTask() {
     fCandidates = NULL;
+    fCandidates2 = NULL;
     fQ[0]=fQ[1]=fQ[2]=fQ[3]=NULL;
   }
   virtual ~AnalysisTask() {}
@@ -21,6 +22,7 @@ class AnalysisTask : public TObject { // needed to add to TLists
 
  protected:
   std::vector<TLorentzVector> *fCandidates;
+  std::vector<TLorentzVector> *fCandidates2;
   qcQ *fQ[4];
 };
 

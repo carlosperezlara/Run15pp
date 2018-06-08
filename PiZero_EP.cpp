@@ -1,6 +1,6 @@
 #include "Analysis.h"
-#include "AT_ReadTree.h"
-#include "AT_BBC_EPC.h"
+#include "AT_PiZero.h"
+#include "AT_EP.h"
 
 int main(int argc, char *argv[]){
   if(argc<3) {
@@ -12,17 +12,17 @@ int main(int argc, char *argv[]){
 
   Analysis *ana = Analysis::Instance();
   ana->InputFileName( Form("trees/%s.root",run.Data()) );
-  ana->OutputFileName( Form("BBC_EPC/out/out_%s.root",run.Data()) );
+  ana->OutputFileName( Form("PiZero_EP/out/out_%s.root",run.Data()) );
   ana->DataSetTag( run );
   ana->NumberOfEventsToAnalyze( nev );
 
-  AT_BBC_EPC *tsk = new AT_BBC_EPC();
-  tsk->SkipBBCQCal();
+  AT_PiZero *tsk = new AT_PiZero();
+  tsk->CentralitySelection(0,5);
   ana->AddTask( tsk );
+
+  AT_EP *tsk2 = new AT_EP();
+  ana->AddTask( tsk2 );
 
   ana->Run();
 
-  //AT_ReadTree *tskchk = new AT_ReadTree();
-  //tskchk->CheckEP1();
-  //tskchk->CheckEP2();
 }

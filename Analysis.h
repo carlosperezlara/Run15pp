@@ -32,6 +32,7 @@ class Analysis {
   TTree* GetTree() {return fTree;}
   TString GetInputFileName() {return fInputFileName;} // used for calibration purposes
   std::vector<TLorentzVector>* GetCandidates() {return fCandidates;}
+  std::vector<TLorentzVector>* GetCandidates2() {return fCandidates2;}
   qcQ* GetQ(int n) {return fQ[n];}
   int RunNumber();
   int SegmentNumber();
@@ -50,6 +51,7 @@ class Analysis {
   TFile *fInputFile;
   TTree *fTree;
   std::vector<TLorentzVector> *fCandidates;
+  std::vector<TLorentzVector> *fCandidates2;
   qcQ *fQ[4];
 };
 

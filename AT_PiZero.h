@@ -20,6 +20,7 @@ class AT_PiZero : public AT_ReadTree {
 
  private:
   bool IsBad(int sc, int y, int z);
+  int P0_VertexBin(float vtx);
   int  EMCMAP[8][48][96];
 
   bool fQA;
@@ -28,6 +29,18 @@ class AT_PiZero : public AT_ReadTree {
   TProfile *hNClu0;
   TProfile *hNClu1;
   TH2F *hPizeroMass[4][8]; // Step Section
+  TH2F *hPizeroMixMass[8]; // Section
+
+  struct FASTCLU {
+    float ecore;
+    int idx;
+    float x;
+    float y;
+    float z;
+    float t;
+  };
+  std::vector<FASTCLU> fPrevious[20]; //!
+  std::vector<FASTCLU> fBuffer; //!
 };
 
 #endif

@@ -24,6 +24,7 @@ class AT_BBC_EPC : public AT_ReadTree {
 
   TProfile2D *hPsiC[4][60]; // ord cbin
   TProfile2D *hPsiS[4][60]; // ord cbin
+  TH2F *hDeltaPsi[4][60]; // ord cbin
 };
 
 #endif

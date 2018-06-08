@@ -33,6 +33,9 @@ void AT_BBC_EPC::MyInit() {
 				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
       hPsiS[k][i] = new TProfile2D( Form("BBCPsiS_Ord%d_Cen%02d",k,i), "PsiS",
 				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
+      hDeltaPsi[k][i] = new TH2F( Form("BBCDeltaPsi_Ord%d_Cen%02d",k,i), "DeltaPsi",
+				  32, -0.5, 32-0.5, 100, -0.2, +0.2 );
+      //fNBinsVtx, -0.5, fNBinsVtx-0.5, 100, -0.1, +0.1 );
       for(int j=0; j!=2; ++j) { // subevent
 	for(int n=0; n!=3; ++n) { //step
 	  hQxC[n][k][j][i] = new TH1F( Form("BBCQ%dxC_S%d_CB%02d_ST%d",k+1,j,i,n),
@@ -56,6 +59,7 @@ void AT_BBC_EPC::MyFinish() {
     for(int k=0; k!=4; ++k) { // order
       hPsiC[k][i]->Write();
       hPsiS[k][i]->Write();
+      hDeltaPsi[k][i]->Write();
       for(int j=0; j!=2; ++j) { // subevent
 	for(int n=0; n!=3; ++n) { //step
 	  hQxC[n][k][j][i]->Write();
@@ -181,5 +185,14 @@ void AT_BBC_EPC::MyExec() {
       hPsiC[k][bcen]->Fill(bvtx, nn, TMath::Cos(nn*qvec[k][2].Psi2Pi()) );
       hPsiS[k][bcen]->Fill(bvtx, nn, TMath::Sin(nn*qvec[k][2].Psi2Pi()) );
     }
+    double psi = qvec[k][2].Psi2Pi();
+    for(int ik=0; ik!=32; ++ik) { // correction order
+      int nn = ik+1;
+      double prime = 0.0;
+      prime += TMath::Cos(nn*psi)*bbcc[ik][k][bcen][bvtx]*2.0/nn;
+      prime += TMath::Sin(nn*psi)*bbcs[ik][k][bcen][bvtx]*2.0/nn;
+      hDeltaPsi[k][bcen]->Fill(ik, prime);
+    }
   }
+
 }

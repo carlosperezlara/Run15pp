@@ -26,6 +26,7 @@ Analysis::Analysis() {
   fInputFile = NULL;
   fTree = NULL;
   fCandidates = new std::vector<TLorentzVector>;
+  fCandidates2 = new std::vector<TLorentzVector>;
   for(int i=0; i!=4; ++i)
     fQ[i] = new qcQ(i+1);
 }
@@ -34,6 +35,7 @@ Analysis::~Analysis() {
   delete fListOfTasks;
   if(fInputFile) delete fInputFile;
   delete fCandidates;
+  delete fCandidates2;
   for(int i=0; i!=4; ++i)
     delete fQ[i];
 }

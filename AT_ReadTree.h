@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <TString.h>
-#include <TH2F.h>
+#include <TH1F.h>
 #include "qcQ.h"
 #include "AnalysisTask.h"
 
@@ -20,21 +20,31 @@ class AT_ReadTree : public AnalysisTask {
   void CheckEP1();
   void CheckEP2();
   int ReferenceTracks();
+  void SkipBBCQCal() {fBBCQCal=false;}
+  void TriggerMask(unsigned int msk) {fMask=msk;}
+  void CentralitySelection(float min, float max)
+  {fCentralityMin=min; fCentralityMax=max;}
 
  private:
   void MakeBBCEventPlanes(int,int);
   void LoadTableEP(int run=-1);
-  TH2F *hEvents;
 
  protected:
   int BinVertex(float);
   int BinCentrality(float);
+
+  TH1F *hEvents;
+  TH1F *hCentrality0;
+  unsigned int fMask;
+  float fCentralityMin;
+  float fCentralityMax;
 
   int fNBinsVtx;
   int fNBinsCen;
   float fMinBinVtx;
   float fMinBinCen;
 
+  bool fBBCQCal;
   bool Psi_BBC;
   float Psi1_BBC;
   float Psi2_BBC;
