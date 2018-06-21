@@ -35,6 +35,8 @@ void AT_BBC_EPC::MyInit() {
 				    fNBinsVtx, -0.5, fNBinsVtx-0.5, 32, 0.5, 32.5 );
       hDeltaPsi[k][i] = new TH2F( Form("BBCDeltaPsi_Ord%d_Cen%02d",k,i), "DeltaPsi",
 				  32, -0.5, 32-0.5, 100, -0.2, +0.2 );
+      hRes[k][i] = new TProfile( Form("BBCRes_Ord%d_Cen%02d",k,i), "ResBBC",
+				 fNBinsVtx, -0.5, fNBinsVtx-0.5, -1, +1 );
       //fNBinsVtx, -0.5, fNBinsVtx-0.5, 100, -0.1, +0.1 );
       for(int j=0; j!=2; ++j) { // subevent
 	for(int n=0; n!=3; ++n) { //step
@@ -60,6 +62,7 @@ void AT_BBC_EPC::MyFinish() {
       hPsiC[k][i]->Write();
       hPsiS[k][i]->Write();
       hDeltaPsi[k][i]->Write();
+      hRes[k][i]->Write();
       for(int j=0; j!=2; ++j) { // subevent
 	for(int n=0; n!=3; ++n) { //step
 	  hQxC[n][k][j][i]->Write();
@@ -177,8 +180,10 @@ void AT_BBC_EPC::MyExec() {
     }
   }
 
+
   // ======= STAGE 8: Bulding Full Q and Storing Flattening Coeficients  =======
   for(int k=0; k!=4; ++k) { // order
+    hRes[k][bcen]->Fill(bvtx, TMath::Cos( (k+1)*(qvec[k][0].Psi2Pi()-qvec[k][1].Psi2Pi()) ) );
     qvec[k][2] = qvec[k][0] + qvec[k][1];
     for(int ik=0; ik!=32; ++ik) { // correction order
       int nn = 1+ik;
@@ -194,5 +199,4 @@ void AT_BBC_EPC::MyExec() {
       hDeltaPsi[k][bcen]->Fill(ik, prime);
     }
   }
-
 }

@@ -1,3 +1,4 @@
+float res[5] = {0.161,0.107,0.064,0.042,0.107};
 TH1F *tot;
 TF1 *sgn;
 
@@ -88,7 +89,7 @@ int flow() {
 		    "C2(#varphi - #Psi_{2})",
 		    "C3(#varphi - #Psi_{3})",
 		    "C4(#varphi - #Psi_{4})",
-		    "C2(#varphi - #Psi_{4})" };
+		    "C4(#varphi - #Psi_{2})" };
   float v2bin[5][2] = { {-0.05,+0.05},
 			{-0.60,+0.60},
 			{-0.60,+0.60},
@@ -184,17 +185,17 @@ int flow() {
       style((TH1F*)hv,kGreen-3,ord==4?1.0:1.4);
       TF1 *fitv = new TF1( Form("fitvn_PT%d_ORD%d",ptb,ord), myFunction, 0.5, 0.25, 4 );
       hv->Fit(fitv);
-      vny1[ord][ptb] = fitv->GetParameter(0);
-      vne1[ord][ptb] = fitv->GetParError(0);
+      vny1[ord][ptb] = fitv->GetParameter(0)/res[ord];
+      vne1[ord][ptb] = fitv->GetParError(0)/res[ord];
       fitv->SetParameter(3,0); fitv->SetParLimits(3,+1,-1);
       hv->Fit(fitv);
-      vny2[ord][ptb] = fitv->GetParameter(0);
-      vne2[ord][ptb] = fitv->GetParError(0);
+      vny2[ord][ptb] = fitv->GetParameter(0)/res[ord];
+      vne2[ord][ptb] = fitv->GetParError(0)/res[ord];
       fitv->SetParameter(2,0); fitv->SetParLimits(2,+1,-1);
       fitv->SetParameter(3,0); fitv->SetParLimits(3,+1,-1);
       hv->Fit(fitv);
-      vny3[ord][ptb] = fitv->GetParameter(0);
-      vne3[ord][ptb] = fitv->GetParError(0);
+      vny3[ord][ptb] = fitv->GetParameter(0)/res[ord];
+      vne3[ord][ptb] = fitv->GetParError(0)/res[ord];
       hv->DrawCopy();
     }
   }
@@ -225,16 +226,23 @@ int flow() {
 		       {-0.004, +0.004},
 		       {-0.004, +0.004} };
   */
+  float ybin[5][2] = { {-0.4, 0},
+		       {0, +0.2},
+		       {-0.04, +0.04},
+		       {-0.04, +0.04},
+		       {-0.04, +0.04} };
+  /*
   float ybin[5][2] = { {-0.1, +0.1},
 		       {-0.1, +0.1},
 		       {-0.1, +0.1},
 		       {-0.1, +0.1},
 		       {-0.1, +0.1} };
+  */
   TString vss[5] = {"< Cos #varphi-#Psi_{1} >",
 		    "< Cos 2(#varphi-#Psi_{2}) >",
 		    "< Cos 3(#varphi-#Psi_{3}) >",
 		    "< Cos 4(#varphi-#Psi_{4}) >",
-		    "< Cos 2(#varphi-#Psi_{4}) >"};
+		    "< Cos 4(#varphi-#Psi_{2}) >"};
   ofstream fout("vn.dat");
   for(int ord=0; ord!=5; ++ord) {
     fout << ord << " " << nptbins << endl;
@@ -258,7 +266,7 @@ int flow() {
     main4->cd(ord+1);
     TH2F *axis = new TH2F( Form("tmp%d",ord),
 			   Form("%s;p_{T}  [GeV/c]",vss[ord].Data()),
-			   100,0,20, 100,ybin[ord][0],ybin[ord][1]);
+			   100,0,6.5, 100,ybin[ord][0],ybin[ord][1]);
     axis->Draw();
     gv1[ord]->Draw("PSAME");
     gv2[ord]->Draw("PSAME");
