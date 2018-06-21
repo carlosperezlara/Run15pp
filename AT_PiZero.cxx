@@ -41,6 +41,11 @@ AT_PiZero::AT_PiZero() : AT_ReadTree() {
     }
     hPizeroMixMass[j] = NULL;
   }
+  fCuts.minPt = 0.8;
+  fCuts.maxPt = 22.;
+  fCuts.dist = 8; // cm
+  fCuts.alpha = 0.8;
+  fCuts.time = 5; //ns
 }
 AT_PiZero::~AT_PiZero() {
 }
@@ -60,6 +65,11 @@ void AT_PiZero::MyInit() {
 				   "Mass;pT", 100,0.0,0.7, 150,0,15);
     }
   }
+  std::cout << " ****** PIZERO CUTS ****** " << std::endl;
+  std::cout << "PT " << fCuts.minPt << "," << fCuts.maxPt << std::endl;
+  std::cout << "DIST " << fCuts.dist << std::endl;
+  std::cout << "ALPHA " << fCuts.alpha << std::endl;
+  std::cout << "TIME " << fCuts.time << std::endl;
 }
 
 void AT_PiZero::MyFinish() {
@@ -113,7 +123,7 @@ void AT_PiZero::MyExec() {
     EmcIndexer::decodeTowerId(idx,isc,z,y);
     if( IsBad(isc,y,z) ) continue;
     nclu0[isc]++;
-    if( fabs(it)<5 ) nclu1[isc]++;
+    if( fabs(it)<fCuts.time ) nclu1[isc]++;
     //=== loading cluster i
     float iecore = pEMCecore->at(icl);
     float ix = pEMCx->at(icl);
@@ -161,15 +171,15 @@ void AT_PiZero::MyExec() {
 				 +(iy-jy)*(iy-jy)
 				 +(iz-jz)*(iz-jz) );
       float alpha = TMath::Abs(iecore-jecore)/(iecore+jecore);
-      if(pp.Pt()<0.8) continue;
-      if(pp.Pt()>16.0) continue;
+      if(pp.Pt()<fCuts.minPt) continue;
+      if(pp.Pt()>fCuts.maxPt) continue;
       if(fQA) hPizeroMass[0][isc]->Fill( pp.M(),pp.Pt()); // step0
-      if(dist<8) continue;
+      if(dist<fCuts.dist) continue;
       if(fQA) hPizeroMass[1][isc]->Fill( pp.M(),pp.Pt()); // step1
-      if(alpha>0.8) continue;
+      if(alpha>fCuts.alpha) continue;
       if(fQA) hPizeroMass[2][isc]->Fill( pp.M(),pp.Pt()); // step2
-      if( fabs(it)>5 )continue;
-      if( fabs(jt)>5 )continue;
+      if( fabs(it)>fCuts.time )continue;
+      if( fabs(jt)>fCuts.time )continue;
       if(fQA) hPizeroMass[3][isc]->Fill( pp.M(),pp.Pt()); // step3
       fCandidates->push_back( pp );
     }
@@ -197,12 +207,12 @@ void AT_PiZero::MyExec() {
                                  +(iy-jy)*(iy-jy)
                                  +(iz-jz)*(iz-jz) );
       float alpha = TMath::Abs(iecore-jecore)/(iecore+jecore);
-      if(pp.Pt()<0.8) continue;
-      if(pp.Pt()>16.0) continue;
-      if(dist<8) continue;
-      if(alpha>0.8) continue;
-      if( fabs(it)>5 )continue;
-      if( fabs(jt)>5 )continue;
+      if(pp.Pt()<fCuts.minPt) continue;
+      if(pp.Pt()>fCuts.maxPt) continue;
+      if(dist<fCuts.dist) continue;
+      if(alpha>fCuts.alpha) continue;
+      if( fabs(it)>fCuts.time )continue;
+      if( fabs(jt)>fCuts.time )continue;
       //std::cout << "VVGOOD! " << ix << std::endl;
       if(fQA) hPizeroMixMass[isc]->Fill( pp.M(),pp.Pt());
       fCandidates2->push_back( pp );

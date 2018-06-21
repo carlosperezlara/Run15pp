@@ -90,7 +90,8 @@ void Analysis::Exec() {
       std::cout << " Executing event number :  " << i1 << "/" << EndOfLoop;
       std::cout << Form(" (%.1f)",i1*100.0/EndOfLoop) << std::endl;
     }
-    fTree->GetEntry(i1);
+    //std::cout << " LOADTREE " << fTree->LoadTree(i1) << std::endl;
+    //std::cout << " SIZE " << fTree->GetEntry(i1) << std::endl;
     //---
     int ntsk = fListOfTasks->GetEntries();
     for(int i=0; i!=ntsk; ++i) {

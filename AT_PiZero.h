@@ -17,6 +17,10 @@ class AT_PiZero : public AT_ReadTree {
   virtual void MyExec();
   virtual void MyFinish();
   void DoQA() {fQA=true;}
+  void SetPt(float m, float M) {fCuts.minPt=m;fCuts.maxPt=M;}
+  void SetDist(float val) {fCuts.dist=val;}
+  void SetAlpha(float val) {fCuts.alpha=val;}
+  void SetTime(float val) {fCuts.time=val;}
 
  private:
   bool IsBad(int sc, int y, int z);
@@ -39,6 +43,15 @@ class AT_PiZero : public AT_ReadTree {
     float z;
     float t;
   };
+  struct PI0CUTS {
+    float minPt;
+    float maxPt;
+    float dist;
+    float alpha;
+    float time;
+  };
+
+  PI0CUTS fCuts;
   std::vector<FASTCLU> fPrevious[20]; //!
   std::vector<FASTCLU> fBuffer; //!
 };

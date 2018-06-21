@@ -39,6 +39,60 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
       }
     }
   }
+  pMXSempc3x3 = new std::vector<Float_t>;
+  pQ1ex = new std::vector<qcQ>;
+  pQ2ex = new std::vector<qcQ>;
+  pQ3ex = new std::vector<qcQ>;
+  pQ4ex = new std::vector<qcQ>;
+  pQ6ex = new std::vector<qcQ>;
+  pQ8ex = new std::vector<qcQ>;
+  pQ1fv = new std::vector<qcQ>;
+  pQ2fv = new std::vector<qcQ>;
+  pQ3fv = new std::vector<qcQ>;
+  pQ1bb = new std::vector<qcQ>;
+  pQ2bb = new std::vector<qcQ>;
+  pQ3bb = new std::vector<qcQ>;
+  pQ4bb = new std::vector<qcQ>;
+  pQ6bb = new std::vector<qcQ>;
+  pQ8bb = new std::vector<qcQ>;
+
+  pEMCid = new std::vector<Int_t>;
+  pEMCtwrid = new std::vector<Int_t>;
+  pEMCx = new std::vector<Float_t>;
+  pEMCy = new std::vector<Float_t>;
+  pEMCz = new std::vector<Float_t>;
+  pEMCecore = new std::vector<Float_t>;
+  pEMCecent = new std::vector<Float_t>;
+  pEMCchisq = new std::vector<Float_t>;
+  pEMCtimef = new std::vector<Float_t>;
+
+  pTRKqua = new std::vector<Int_t>;
+  pTRKpt = new std::vector<Float_t>;
+  pTRKphi = new std::vector<Float_t>;
+  pTRKpz = new std::vector<Float_t>;
+  pTRKecore = new std::vector<Float_t>;
+  pTRKetof = new std::vector<Float_t>;
+  pTRKtwrid = new std::vector<Int_t>;
+  pTRKplemc = new std::vector<Float_t>;
+  pTRKchisq = new std::vector<Float_t>;
+  pTRKdphi = new std::vector<Float_t>;
+  pTRKdz = new std::vector<Float_t>;
+  pTRKpc3sdphi = new std::vector<Float_t>;
+  pTRKpc3sdz = new std::vector<Float_t>;
+  pTRKzed = new std::vector<Float_t>;
+  pTRKdisp = new std::vector<Float_t>;
+  pTRKprob = new std::vector<Float_t>;
+  pTRKcid = new std::vector<Int_t>;
+
+  pMXSempccent = new std::vector<Float_t>;
+  pMXSempc3x3 = new std::vector<Float_t>;
+  pMXSpt = new std::vector<Float_t>;
+  pMXSpz = new std::vector<Float_t>;
+  pMXSeta = new std::vector<Float_t>;
+  pMXSphi = new std::vector<Float_t>;
+  pMXSflyr = new std::vector<Int_t>;
+  pMXSsingleD = new std::vector<Float_t>;
+  pMXSsingleP = new std::vector<Int_t>;
 }
 
 void AT_ReadTree::Init() {
@@ -113,7 +167,6 @@ void AT_ReadTree::Init() {
   tree->SetBranchAddress("MXSsingleP", &pMXSsingleP);
   tree->SetBranchAddress("MXSempccent",&pMXSempccent);
   tree->SetBranchAddress("MXSempc3x3", &pMXSempc3x3);
-
   LoadTableEP();
 
   MyInit();
