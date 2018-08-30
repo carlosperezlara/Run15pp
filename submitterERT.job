@@ -1,0 +1,20 @@
+N = 116
+ID = $(Cluster).$(Process) 
+
+Universe       = vanilla
+Initialdir     = /gpfs/mnt/gpfs02/phenix/mpcex/cperez/treeAnalysis/
+Executable     = /bin/csh
+Arguments      = dojobERT.csh $(Process)
+
+Notification   = Error
+Log            = log/_$(Cluster).log
+Output         = log/_$(ID).out
+Error          = log/_$(ID).err
+Requirements   = (CPU_Experiment == "phenix") && (MEMORY_LIMIT > 2000000) && (CPU_Speed >= 1)
+
+Priority       = +20
+GetEnv         = True
++Experiment    = "PHENIX"
++Job_Type      = "highmem"
+
+Queue $(N)
