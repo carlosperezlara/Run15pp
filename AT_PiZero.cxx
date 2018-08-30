@@ -98,8 +98,8 @@ void AT_PiZero::MyExec() {
   unsigned int trigger = fGLB.trig;
   bool trig = false;
   if(trigger & fMask) trig = true;
-  if(cent<fCentralityMin||cent>fCentralityMax) return;
-  if(frac<0.95) return;
+  //if(cent<fCentralityMin||cent>fCentralityMax) return;
+  //if(frac<0.95) return;
   if(!trig) return;
   if(fabs(vtxZ)>20) return;
   
