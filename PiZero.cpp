@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 
   AT_PiZero *tsk = new AT_PiZero();
   tsk->DoQA();
-  tsk->CentralitySelection(0,5);
+  //tsk->CentralitySelection(0,5);
   ana->AddTask( tsk );
 
   ana->Run();
