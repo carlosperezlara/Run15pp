@@ -1,3 +1,7 @@
+TREES
+  1) cat treelinks.txt
+  2) do the link to the MB and ERT (if present)
+
 CONDOR
   1) mkdir log
   2) edit submitter.job and change init directory
@@ -6,17 +10,25 @@ BBC_EPC
   1) edit makefile and make sure BBC_EPC is activated
   2) make
   3) mkdir BBC_EPC/out
-  3) test ./dojob.csh 0
+  3) test ./dojob.csh 0 (make sure the BBC_EPC is activated)
   4) condor_submit submitter.job
   5) cd BBC_EPC
   6) edit and uncomment in genererateFiles.sh the lines for merge and qcent
   7) run ./generateFiles.sh
-  8) repeat from step 3 to 5
+  8) repeat from step 3 to 5 (for 3 just check that tables are loaded)
   9) edit and uncomment in genererateFiles.sh the lines for merge and coef
   7) run ./generateFiles.sh
-  8) repeat from step 3 to 5
+  8) repeat from step 3 to 5 (for 3 just check that tables are loaded)
   9) edit and uncomment in genererateFiles.sh the lines for merge and bbcres
   7) run ./generateFiles.sh
   
-  
+PIZERO_EP
+  1) edit makefile and make sure PiZero_EP is activated
+  2) make
+  3) mkdir PiZero_EP/out
+  3) test ./dojob.csh 0 (make sure the Run_PiZero_EP is activated)
+  4) condor_submit submitter.job
+  5) cd PiZero_EP
+  6) ./genereteFiles.sh
+  7) root flow.C
 
