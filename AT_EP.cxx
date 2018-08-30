@@ -7,14 +7,15 @@
 #include "AT_EP.h"
 
 AT_EP::AT_EP() {
-  fNpt = 14; //9;
-  //float ptbins[15] = {1.0, 1.1, 1.2, 1.4, 1.6, //1.0, 1.5, 2.0, 2.5, 3.0,
-  //		      1.8, 2.0, 2.2, 2.5, 3.0,
+  fNpt = 22;//14; //9;
+  //float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
+  //		      1.7, 1.9, 2.2, 2.5, 3.0,
   //		      4.0, 6.0, 10., 15., 20.};
-  float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
-		      1.7, 1.9, 2.2, 2.5, 3.0,
-		      4.0, 6.0, 10., 15., 20.};
-
+  float ptbins[23] = {1.0, 1.1, 1.2, 1.3, 1.4,
+		      1.5, 1.6, 1.7, 1.8, 2.0,
+		      2.2, 2.4, 2.6, 2.8, 3.0,
+		      3.4, 3.8, 4.4, 5.0, 6.0,
+		      8.0, 10., 20.};
   for(int i=0; i!=fNpt+1; ++i) fPtBins[i] = ptbins[i];
   fNma = 15;
   float mabins[16] = {0.040, 0.060, 0.080, 0.100, 0.110,
@@ -37,20 +38,20 @@ void AT_EP::Init() {
   for(int p=0; p!=fNpt; ++p) {
     hMass[p] = new TH1F( Form("hMass_PB%d",p),
 			 Form("hMass_PB%d;Mass",p),
-			 220, //assuming 0.260-0.040 = 0.220
+			 240,//220, //assuming 0.260-0.040 = 0.220
 			 fMassBins[0],fMassBins[fNma] );
     hMass2[p] = new TH1F( Form("hMass2_PB%d",p),
 			  Form("hMass2_PB%d;Mass",p),
-			  220, //assuming 0.260-0.040 = 0.220
+			  240,//220, //assuming 0.260-0.040 = 0.220
 			  fMassBins[0],fMassBins[fNma] );
     for(int n=0; n!=5; ++n) {
       hCos[n][p] = new TProfile( Form("hCos%dDP_PB%d",n,p),
 				 Form("hCos%dDP_PB%d;Mass",n,p), 
-				 110,
+				 120,//110,
 				 fMassBins[0],fMassBins[fNma] );
       hCos2[n][p] = new TProfile( Form("hCos2%dDP_PB%d",n,p),
 				  Form("hCos2%dDP_PB%d;Mass",n,p), 
-				  110,
+				  120,//110,
 				  fMassBins[0],fMassBins[fNma] );
       //				 fNma, fMassBins );
     }

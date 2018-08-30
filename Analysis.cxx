@@ -92,6 +92,7 @@ void Analysis::Exec() {
     }
     //std::cout << " LOADTREE " << fTree->LoadTree(i1) << std::endl;
     //std::cout << " SIZE " << fTree->GetEntry(i1) << std::endl;
+    fTree->GetEntry(i1);
     //---
     int ntsk = fListOfTasks->GetEntries();
     for(int i=0; i!=ntsk; ++i) {
