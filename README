@@ -9,7 +9,14 @@ BBC_EPC
   3) test ./dojob.csh 0
   4) condor_submit submitter.job
   5) cd BBC_EPC
-  6) ./mergePerRun.sh
-  7) check each .C macro
-  8) ./generateFiles.sh
+  6) edit and uncomment in genererateFiles.sh the lines for merge and qcent
+  7) run ./generateFiles.sh
+  8) repeat from step 3 to 5
+  9) edit and uncomment in genererateFiles.sh the lines for merge and coef
+  7) run ./generateFiles.sh
+  8) repeat from step 3 to 5
+  9) edit and uncomment in genererateFiles.sh the lines for merge and bbcres
+  7) run ./generateFiles.sh
+  
+  
 
