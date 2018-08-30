@@ -1,0 +1,12 @@
+CONDOR
+  1) mkdir log
+  2) edit submitter.job and change init directory
+
+BBC_EPC
+  1) edit makefile and make sure BBC_EPC is activated
+  2) make
+  3) mkdir BBC_EPC/out
+  3) test ./dojob.csh 0
+  4) condor_submit submitter.job
+  5) cd BBC_EPC
+  6) 

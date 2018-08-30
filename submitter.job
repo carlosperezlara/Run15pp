@@ -1,4 +1,4 @@
-N = 3926
+N = 845
 ID = $(Cluster).$(Process) 
 
 Universe       = vanilla

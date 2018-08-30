@@ -15,9 +15,9 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
   fBBCQCal = true;
   Psi_BBC = false;
   fNBinsVtx = 40;
-  fNBinsCen = 60;
+  fNBinsCen = 1;
   fMinBinVtx = -20.0;
-  fMinBinCen = 0.5;
+  fMinBinCen = 9.5;
   unsigned int kBBC1 = 0x00000001;
   unsigned int kBBC2 = 0x00000002;
   unsigned int kBBCnc = 0x00000008;
@@ -297,14 +297,13 @@ AT_ReadTree::~AT_ReadTree() {
 void AT_ReadTree::Exec() {
   hEvents->Fill(0);
   float vtx = fGLB.vtxZ;
-  float cen = 10;//fGLB.cent;
+  fGLB.cent = 10; //setting centraliy to 10 for everybody
+  float cen = fGLB.cent;
   unsigned int trigger = fGLB.trig;
   bool trig = false;
   if(trigger & fMask) trig = true;
   float frac = fGLB.frac;
 
-  //if(cen<0.5||cen>60.5) return;
-  //if(cen<fCentralityMin||cen>fCentralityMax) return;
   if(!trig) return;
   //if(frac<0.95) return;
   if(TMath::Abs(vtx)>20) return;
