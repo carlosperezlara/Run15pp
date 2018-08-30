@@ -12,19 +12,18 @@ int main(int argc, char *argv[]){
   int nev = snev.Atoi();
   TString spar3 = argv[3];
 
+  unsigned int trigger_BBC1              = 0x00000001;
+  unsigned int trigger_BBC2              = 0x00000002;
   unsigned int trigger_BBCLL1narrowcent  = 0x00000008;
   unsigned int trigger_BBCLL1narrow      = 0x00000010;
-  unsigned int trigger_FVTXNSBBCScentral = 0x00100000;
-  unsigned int trigger_FVTXNSBBCS        = 0x00400000;
-  unsigned int trigger_ERT4x4B           = 0x00000040;
-  unsigned int trigger_MPC_N_A           = 0x00010000;
-  unsigned int trigger_MPC_N_B           = 0x00020000;
   unsigned int msk = trigger_BBCLL1narrowcent | trigger_BBCLL1narrow;
   TString sert = "";
+  /*
   if(spar3.Contains("ERT")) {
     msk |= trigger_ERT4x4B;
     sert = "ERT";
   }
+  */
 
   AT_PiZero *tsk = new AT_PiZero();
   tsk->TriggerMask( msk );
