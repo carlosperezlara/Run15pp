@@ -1,4 +1,4 @@
-int qcent(int run=454777) {
+int qcent(int run=424356) {
   TFile *file = new TFile( Form("out/run%d.root",run) );
   TH2F *QH;
   TH1D *h;
@@ -8,7 +8,7 @@ int qcent(int run=454777) {
     for(int ix=0; ix!=2; ++ix) {
       for(int se=0; se!=2; ++se) {
 	//printing 60rows x 40 columns table
-	for(int i=0; i!=60; ++i) {
+	for(int i=0; i!=1; ++i) {
 	  QH = (TH2F*) file->Get( Form("BBCQ%d%c_S%d_CB%02d",ord+1,xy[ix],se,i) );
 	  int nbins = QH->GetXaxis()->GetNbins(); // NVtx
 	  for(int j=0; j!=nbins; ++j) {
