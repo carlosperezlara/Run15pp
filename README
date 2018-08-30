@@ -9,4 +9,7 @@ BBC_EPC
   3) test ./dojob.csh 0
   4) condor_submit submitter.job
   5) cd BBC_EPC
-  6) 
+  6) ./mergePerRun.sh
+  7) check each .C macro
+  8) ./generateFiles.sh
+
