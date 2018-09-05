@@ -1,10 +1,15 @@
 //float res[5] = {0.161,0.107,0.064,0.042,0.107};
 //float res[5] = {0.161,0.107*1.2,0.064,0.042,0.107};
 float res[5] = {1,1,1,1,1};
-const int nptbins = 14;
-float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
-		    1.7, 1.9, 2.2, 2.5, 3.0,
-		    4.0, 6.0, 10., 15., 20.};
+const int nptbins = 22; //14
+float ptbins[23] = {1.0, 1.1, 1.2, 1.3, 1.4,
+		    1.5, 1.6, 1.7, 1.8, 2.0,
+		    2.2, 2.4, 2.6, 2.8, 3.0,
+		    3.4, 3.8, 4.4, 5.0, 6.0,
+		    8.0, 10., 20.};
+//float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
+//		    1.7, 1.9, 2.2, 2.5, 3.0,
+//		    4.0, 6.0, 10., 15., 20.};
 float meanPi0;
 
 TH1F *tot; // they must be loaded
@@ -154,14 +159,15 @@ void FitSignal(int ptb ) {
   fit->SetParameter(0,100);
   fit->SetParameter(1,0.139);
   fit->SetParameter(2,0.01);  fit->SetParLimits(2,0.001,0.1);
-  hmS->Fit( fit, "QNWR", "", 0.115, 0.155 );
-  hmS->Fit( fit, "QNWR", "", 0.115, 0.155 );
+  hmS->Fit( fit, "NWR", "", 0.115, 0.155 );
+  hmS->Fit( fit, "NWR", "", 0.115, 0.155 );
   meanPi0 = fit->GetParameter(1);
 }
 //=======================================
 void LoadVnProfileAndFit(int ptb, int ord, int rebin=1) {
   hv = (TProfile*) file->Get( Form("hCos%dDP_PB%d",ord,ptb) );
   hv->Rebin( rebin );
+  hv->Dump();
   fitv = new TF1( Form("fitvn_PT%d_ORD%d",ptb,ord), myFunction, 0.5, 0.25, 4 );
 }
 //=======================================
@@ -255,6 +261,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=11) {
   for(int ptb=ptfirst; ptb!=ptlast; ++ptb) {
     CreateBgr(ptb);//,hm,hmm,hmmL,hmmR);
     FitSignal(ptb);//,hm,hmm,hmS,fit);
+
     // setting global sources
     tot = hm;
     sgn = fit;
@@ -313,6 +320,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=11) {
       vny3[ord][ptb] = fitv->GetParameter(0)/res[ord];
       vne3[ord][ptb] = fitv->GetParError(0)/res[ord];
       //==
+      continue;
       FitVnQuad();
       vny1[ord][ptb] = fitv->GetParameter(0)/res[ord];
       vne1[ord][ptb] = fitv->GetParError(0)/res[ord];
@@ -367,7 +375,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=11) {
 
   TGraphErrors *gv1[5], *gv2[5], *gv3[5];
   float ybin[5][2] = { {-0.04, 0},
-		       {0, +0.02},
+		       {-0.4, +0.001},
 		       {-0.004, +0.004},
 		       {-0.004, +0.004},
 		       {-0.004, +0.004} };
@@ -388,7 +396,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=11) {
     main5->cd(ord+1);
     TH2F *axis = new TH2F( Form("tmp%d",ord),
 			   Form("%s;p_{T}  [GeV/c]",vss[ord].Data()),
-			   100,0,20.0, 100,ybin[ord][0]*10,ybin[ord][1]*10);
+			   100,0,20.0, 100,ybin[ord][0],ybin[ord][1]);
     axis->Draw();
     gv1[ord]->Draw("PSAME");
     gv2[ord]->Draw("PSAME");
