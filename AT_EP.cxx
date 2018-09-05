@@ -56,6 +56,13 @@ void AT_EP::Init() {
       //				 fNma, fMassBins );
     }
   }
+
+  for(int n=0; n!=4; ++n) {
+    hPsi[n] = new TH1F( Form("hPSI%d",n),
+			Form("hPSI%d;Mass",n),
+			120, -TMath::TwoPi(), +TMath::TwoPi() );
+  }
+
 }
 
 void AT_EP::Finish() {
@@ -69,10 +76,17 @@ void AT_EP::Finish() {
       hCos2[n][p]->Write();
     }
   }
+  for(int n=0; n!=4; ++n) {
+    hPsi[n]->Write();
+  }
 }
 
 void AT_EP::Exec() {
   if(fQ[0]->M()<1) return;
+
+  for(int ord=0; ord!=4; ++ord) {
+    hPsi[ord]->Fill( fQ[ord]->Psi2Pi() );
+  }
 
   // CANDIDATES 1
   uint npa = fCandidates->size();
