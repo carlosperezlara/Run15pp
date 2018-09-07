@@ -108,6 +108,10 @@ void AT_ReadTree::Init() {
   hEvents->GetXaxis()->SetBinLabel(3,"AT_X");
 
   hCentrality0 = new TH1F("hCentrality0","hCentrality0",100,-0.5,99.5);
+
+  for (int i = 0; i < 5; i++) {
+    hPsi2[i] = new TH1F(Form("hPsi2%d", i), Form("2nd order Psi after calib step %d", i), 200, -6.3, 6.3);
+  }
   
   TTree *tree = ana->GetTree();
   if(!tree) {
@@ -286,6 +290,11 @@ void AT_ReadTree::CheckEP2() {
 void AT_ReadTree::Finish() {
   hEvents->Write();
   hCentrality0->Write();
+
+  for (int i = 0; i < 5; i++) {
+    hPsi2[i]->Write();
+  }
+
   MyFinish();
 }
 
@@ -340,6 +349,9 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
     }
   }
 
+  //std::cout << "BBC EP Check0 : " << qvec[1][0].Psi2Pi() << std::endl;
+  hPsi2[0]->Fill(qvec[1][0].Psi2Pi());
+
   // ======= STAGE 2: Recentering SubEvents (STEP1)  =======
   for(int k=0; k!=4; ++k) { // order
     for(int j=0; j!=2; ++j) { // subevent
@@ -350,6 +362,11 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
       qvec[k][j].SetXY( x - cn, y - sn, qvec[k][j].NP(), qvec[k][j].M() );
     }
   }
+  //std::cout << " LOADED " << bbcm[0][1][0][bcen][bvtx] << " " << bbcm[0][1][1][bcen][bvtx] << std::endl;
+  //std::cout << " LOADED " << bbcm[1][1][0][bcen][bvtx] << " " << bbcm[1][1][1][bcen][bvtx] << std::endl;
+  //std::cout << "BBC EP Check1 : 0 " << qvec[1][0].Psi2Pi() << std::endl;
+  //std::cout << "BBC EP Check1 : 1 " << qvec[1][1].Psi2Pi() << std::endl;
+  hPsi2[1]->Fill(qvec[1][0].Psi2Pi());
 
   int twon[4] = {1,3,4,5}; // 1,2,3,4,6,8
   // ======= STAGE 4: Twisting SubEvents (STEP2)  =======
@@ -378,6 +395,8 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
     }
   }
 
+  //std::cout << "BBC EP Check2 : " << qvec[1][0].Psi2Pi() << std::endl;
+  hPsi2[2]->Fill(qvec[1][0].Psi2Pi());
   // ======= STAGE 6: Rescaling SubEvents (STEP3)  =======
   for(int k=0; k!=4; ++k) { // order
     for(int j=0; j!=2; ++j) { // subevent
@@ -398,6 +417,8 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
     }
   }
 
+  //std::cout << "BBC EP Check3 : " << qvec[1][0].Psi2Pi() << std::endl;
+  hPsi2[3]->Fill(qvec[1][0].Psi2Pi());
   // ======= STAGE 8: Bulding Full Q and Storing Flattening Coeficients  =======
   double delta[4] = {0,0,0,0};
   for(int k=0; k!=4; ++k) { // order
@@ -420,6 +441,9 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
   Psi2_BBC = qvec[1][2].Psi2Pi()+delta[1];
   Psi3_BBC = qvec[2][2].Psi2Pi()+delta[2];
   Psi4_BBC = qvec[3][2].Psi2Pi()+delta[3];
+
+  //std::cout << "BBC EP Check4 : " << Psi2_BBC << std::endl;
+  hPsi2[4]->Fill(Psi2_BBC);
 
   /*
   if( (TMath::Abs( fQ[0]->Psi2Pi() - Psi1_BBC ) < 1e-4) ||
@@ -480,29 +504,31 @@ void AT_ReadTree::LoadTableEP( int run ) {
   int se, ord, xy, bce, bvt;
   float tmp;
   fin.open( Form("BBC_EPC/tables/BBC_%d.dat",run) );
+  std::cout <<  Form("LOADING TABLE1 BBC_EPC/tables/BBC_%d.dat",run) << std::endl;
   int nn=0;
   for(;;++nn) {
     fin >> tmp;
     if(!fin.good()) break;
-    int ord = (nn/9600)%6;
-    int xy = (nn/4800)%2;
-    int se = (nn/2400)%2;
-    int bce = (nn/40)%60;
-    int bvt = nn%40;
+    int ord = (nn/160)%6;//9600)%6;
+    int xy = (nn/80)%2;//4800)%2;
+    int se = (nn/40)%2;//2400)%2;
+    int bce = 0; //(nn/40)%60; // centrality
+    int bvt = nn%40; // vertex
     bbcm[se][ord][xy][bce][bvt] = tmp*1e-1;
   }
   fin.close();
   std::cout << "   BBC ReCenter coefficients loaded: " << nn << std::endl;
   fin.open( Form("BBC_EPC/tables/BBC_A_%d.dat",run) );
+  std::cout <<  Form("LOADING TABLE1 BBC_EPC/tables/BBC_A_%d.dat",run) << std::endl;
   nn=0;
   for(;;++nn) {
     fin >> tmp;
     if(!fin.good()) break;
-    int ord = (nn/153600)%4;
-    int bce = (nn/2560)%60;
-    int bcs = (nn/1280)%2;
-    int bor = (nn/40)%32;
-    int bvt = nn%40;
+    int ord = (nn,2560)%4;//153600)%4; //order
+    int bce = 0;//(nn/2560)%60; //centrality
+    int bcs = (nn/1280)%2; //xy
+    int bor = (nn/40)%32; // order of expansion
+    int bvt = nn%40; // vertex
     if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
     else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
   }
