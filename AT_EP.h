@@ -27,6 +27,7 @@ class AT_EP : public AnalysisTask {
   TH1F *hMass[100];
   TProfile *hCos[5][100];
   TH1F *hMass2[100];
+  TH1F *hPsi[4];
   TProfile *hCos2[5][100];
 
 };

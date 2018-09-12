@@ -35,6 +35,7 @@ class AT_ReadTree : public AnalysisTask {
 
   TH1F *hEvents;
   TH1F *hCentrality0;
+  TH1F *hPsi2[10]; // Check flatness on each EP calib step
   unsigned int fMask;
   float fCentralityMin;
   float fCentralityMax;

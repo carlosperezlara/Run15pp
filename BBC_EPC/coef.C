@@ -4,7 +4,7 @@ int coef(int run=454777) {
   float coe;
   ofstream fout( Form("tables/BBC_A_%d.dat",run) );
   for(int ord=0; ord!=4; ++ord) {
-    for(int i=0; i!=60; ++i) {
+    for(int i=0; i!=1; ++i) {
       QH = (TProfile2D*) file->Get( Form("BBCPsiC_Ord%d_Cen%02d",ord,i) );
       //yes, they are reversed!
       int nbins = QH->GetXaxis()->GetNbins(); // vtx

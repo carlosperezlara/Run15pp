@@ -6,10 +6,10 @@ echo $A
 @ B=-1
 
 #./Run_MX_EPC $A $B
-./Run_BBC_EPC $A $B
-./Run_PiZero $A $B
+#./Run_BBC_EPC $A $B
+#./Run_PiZero $A $B
 
-#./Run_PiZero_EP $A $B 
+./Run_PiZero_EP $A $B 
 #./Run_PiZero_EP $A $B D0
 #./Run_PiZero_EP $A $B D1
 #./Run_PiZero_EP $A $B A0
