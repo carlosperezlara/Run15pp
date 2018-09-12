@@ -365,6 +365,7 @@ void AT_ReadTree::MakeBBCEventPlanes(int bcen, int bvtx) {
   //std::cout << " LOADED " << bbcm[0][1][0][bcen][bvtx] << " " << bbcm[0][1][1][bcen][bvtx] << std::endl;
   //std::cout << " LOADED " << bbcm[1][1][0][bcen][bvtx] << " " << bbcm[1][1][1][bcen][bvtx] << std::endl;
   //std::cout << "BBC EP Check1 : 1 " << qvec[1][0].Psi2Pi() << std::endl;
+  //std::cout << "BBC EP Check1 : 0 " << qvec[1][0].Psi2Pi() << std::endl;
   //std::cout << "BBC EP Check1 : 1 " << qvec[1][1].Psi2Pi() << std::endl;
   hPsi2[1]->Fill(qvec[1][0].Psi2Pi());
 
