@@ -1,8 +1,8 @@
-N = 845
+N = 995
 ID = $(Cluster).$(Process) 
 
 Universe       = vanilla
-Initialdir     = /gpfs/mnt/gpfs02/phenix/mpcex/subsys/ncc/jhdo/work/Ana/EmcFlow/run15pp/Run15pp
+Initialdir     = /gpfs/mnt/gpfs02/phenix/mpcex/cperez/Run15pp
 Executable     = /bin/csh
 Arguments      = dojob.csh $(Process)
 

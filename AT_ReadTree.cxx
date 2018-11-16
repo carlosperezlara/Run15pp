@@ -2,6 +2,7 @@
 #include <fstream>
 #include <TTree.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TFile.h>
 #include <TMath.h>
 #include <TCanvas.h>
@@ -95,6 +96,9 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
   pMXSflyr = new std::vector<Int_t>;
   pMXSsingleD = new std::vector<Float_t>;
   pMXSsingleP = new std::vector<Int_t>;
+
+  fSkipPileUpCuts = false;
+  fSkipDetails = false;
 }
 
 void AT_ReadTree::Init() {
@@ -102,17 +106,24 @@ void AT_ReadTree::Init() {
   fCandidates = ana->GetCandidates();
   fCandidates2= ana->GetCandidates2();
   for(int i=0; i!=4; ++i) fQ[i] = ana->GetQ(i);
-  hEvents = new TH1F("hEvents","hEvents",4,-0.5,3.5);
+  hEvents = new TH1F("hEvents","hEvents",7,-0.5,6.5);
   hEvents->GetXaxis()->SetBinLabel(1,"AllEvents");
   hEvents->GetXaxis()->SetBinLabel(2,"AT_ReadTree");
   hEvents->GetXaxis()->SetBinLabel(3,"AT_X");
 
-  hCentrality0 = new TH1F("hCentrality0","hCentrality0",100,-0.5,99.5);
+  hTriggers0 = new TH1F("hTriggers","hTriggers",10,-0.5,9.5);
+  hTriggers0->GetXaxis()->SetBinLabel(1,"0x00000001");
+  hTriggers0->GetXaxis()->SetBinLabel(2,"0x00000002");
+  hTriggers0->GetXaxis()->SetBinLabel(3,"0x00000008");
+  hTriggers0->GetXaxis()->SetBinLabel(4,"0x00000010");
+
+  hCentrality0 = new TH1F("hCentrality","hCentrality",100,-0.5,99.5);
+  hVertex0 = new TH1F("hVertex","hVertex",100,-40,+40);
 
   for (int i = 0; i < 5; i++) {
     hPsi2[i] = new TH1F(Form("hPsi2%d", i), Form("2nd order Psi after calib step %d", i), 200, -6.3, 6.3);
   }
-  
+
   TTree *tree = ana->GetTree();
   if(!tree) {
     std::cout << "AT_ReadTree:Init says: Tree not found." << std::endl;
@@ -120,59 +131,62 @@ void AT_ReadTree::Init() {
   }
   //Opening assigning branches
   tree->SetBranchAddress("Event",&fGLB);
-  //=
-  tree->SetBranchAddress("Q1ex",&pQ1ex);
-  tree->SetBranchAddress("Q2ex",&pQ2ex);
-  tree->SetBranchAddress("Q3ex",&pQ3ex);
-  tree->SetBranchAddress("Q4ex",&pQ4ex);
-  tree->SetBranchAddress("Q6ex",&pQ6ex);
-  tree->SetBranchAddress("Q8ex",&pQ8ex);
-  tree->SetBranchAddress("Q1fv",&pQ1fv);
-  tree->SetBranchAddress("Q2fv",&pQ2fv);
-  tree->SetBranchAddress("Q3fv",&pQ3fv);
-  tree->SetBranchAddress("Q1bb",&pQ1bb);
-  tree->SetBranchAddress("Q2bb",&pQ2bb);
-  tree->SetBranchAddress("Q3bb",&pQ3bb);
-  tree->SetBranchAddress("Q4bb",&pQ4bb);
-  tree->SetBranchAddress("Q6bb",&pQ6bb);
-  tree->SetBranchAddress("Q8bb",&pQ8bb);
-  //=
-  tree->SetBranchAddress("EMCid",   &pEMCid);
-  tree->SetBranchAddress("EMCtwrid",&pEMCtwrid);
-  tree->SetBranchAddress("EMCx",    &pEMCx);
-  tree->SetBranchAddress("EMCy",    &pEMCy);
-  tree->SetBranchAddress("EMCz",    &pEMCz);
-  tree->SetBranchAddress("EMCecore",&pEMCecore);
-  tree->SetBranchAddress("EMCecent",&pEMCecent);
-  tree->SetBranchAddress("EMCchisq",&pEMCchisq);
-  tree->SetBranchAddress("EMCtimef",&pEMCtimef);
-  //=
-  tree->SetBranchAddress("TRKqua",  &pTRKqua);
-  tree->SetBranchAddress("TRKpt",   &pTRKpt);
-  tree->SetBranchAddress("TRKphi",  &pTRKphi);
-  tree->SetBranchAddress("TRKpz",   &pTRKpz);
-  tree->SetBranchAddress("TRKecore",&pTRKecore);
-  tree->SetBranchAddress("TRKetof", &pTRKetof);
-  tree->SetBranchAddress("TRKplemc",&pTRKplemc);
-  tree->SetBranchAddress("TRKtwrid",&pTRKtwrid);
-  tree->SetBranchAddress("TRKchisq",&pTRKchisq);
-  tree->SetBranchAddress("TRKdphi", &pTRKdphi);
-  tree->SetBranchAddress("TRKdz",   &pTRKdz);
-  tree->SetBranchAddress("TRKpc3sdphi",&pTRKpc3sdphi);
-  tree->SetBranchAddress("TRKpc3sdz",  &pTRKpc3sdz);
-  tree->SetBranchAddress("TRKzed",  &pTRKzed);
-  tree->SetBranchAddress("TRKdisp", &pTRKdisp);
-  tree->SetBranchAddress("TRKprob", &pTRKprob);
-  tree->SetBranchAddress("TRKcid",  &pTRKcid);
-  //=
-  tree->SetBranchAddress("MXSpt",  &pMXSpt);
-  tree->SetBranchAddress("MXSpz",  &pMXSpz);
-  tree->SetBranchAddress("MXSphi", &pMXSphi);
-  tree->SetBranchAddress("MXSflyr",&pMXSflyr);
-  tree->SetBranchAddress("MXSsingleD", &pMXSsingleD);
-  tree->SetBranchAddress("MXSsingleP", &pMXSsingleP);
-  tree->SetBranchAddress("MXSempccent",&pMXSempccent);
-  tree->SetBranchAddress("MXSempc3x3", &pMXSempc3x3);
+  tree->SetBranchAddress("EventC",&fGLB2);
+  if(!fSkipDetails) {
+    //=
+    tree->SetBranchAddress("Q1ex",&pQ1ex);
+    tree->SetBranchAddress("Q2ex",&pQ2ex);
+    tree->SetBranchAddress("Q3ex",&pQ3ex);
+    tree->SetBranchAddress("Q4ex",&pQ4ex);
+    tree->SetBranchAddress("Q6ex",&pQ6ex);
+    tree->SetBranchAddress("Q8ex",&pQ8ex);
+    tree->SetBranchAddress("Q1fv",&pQ1fv);
+    tree->SetBranchAddress("Q2fv",&pQ2fv);
+    tree->SetBranchAddress("Q3fv",&pQ3fv);
+    tree->SetBranchAddress("Q1bb",&pQ1bb);
+    tree->SetBranchAddress("Q2bb",&pQ2bb);
+    tree->SetBranchAddress("Q3bb",&pQ3bb);
+    tree->SetBranchAddress("Q4bb",&pQ4bb);
+    tree->SetBranchAddress("Q6bb",&pQ6bb);
+    tree->SetBranchAddress("Q8bb",&pQ8bb);
+    //=
+    tree->SetBranchAddress("EMCid",   &pEMCid);
+    tree->SetBranchAddress("EMCtwrid",&pEMCtwrid);
+    tree->SetBranchAddress("EMCx",    &pEMCx);
+    tree->SetBranchAddress("EMCy",    &pEMCy);
+    tree->SetBranchAddress("EMCz",    &pEMCz);
+    tree->SetBranchAddress("EMCecore",&pEMCecore);
+    tree->SetBranchAddress("EMCecent",&pEMCecent);
+    tree->SetBranchAddress("EMCchisq",&pEMCchisq);
+    tree->SetBranchAddress("EMCtimef",&pEMCtimef);
+    //=
+    tree->SetBranchAddress("TRKqua",  &pTRKqua);
+    tree->SetBranchAddress("TRKpt",   &pTRKpt);
+    tree->SetBranchAddress("TRKphi",  &pTRKphi);
+    tree->SetBranchAddress("TRKpz",   &pTRKpz);
+    tree->SetBranchAddress("TRKecore",&pTRKecore);
+    tree->SetBranchAddress("TRKetof", &pTRKetof);
+    tree->SetBranchAddress("TRKplemc",&pTRKplemc);
+    tree->SetBranchAddress("TRKtwrid",&pTRKtwrid);
+    tree->SetBranchAddress("TRKchisq",&pTRKchisq);
+    tree->SetBranchAddress("TRKdphi", &pTRKdphi);
+    tree->SetBranchAddress("TRKdz",   &pTRKdz);
+    tree->SetBranchAddress("TRKpc3sdphi",&pTRKpc3sdphi);
+    tree->SetBranchAddress("TRKpc3sdz",  &pTRKpc3sdz);
+    tree->SetBranchAddress("TRKzed",  &pTRKzed);
+    tree->SetBranchAddress("TRKdisp", &pTRKdisp);
+    tree->SetBranchAddress("TRKprob", &pTRKprob);
+    tree->SetBranchAddress("TRKcid",  &pTRKcid);
+    //=
+    tree->SetBranchAddress("MXSpt",  &pMXSpt);
+    tree->SetBranchAddress("MXSpz",  &pMXSpz);
+    tree->SetBranchAddress("MXSphi", &pMXSphi);
+    tree->SetBranchAddress("MXSflyr",&pMXSflyr);
+    tree->SetBranchAddress("MXSsingleD", &pMXSsingleD);
+    tree->SetBranchAddress("MXSsingleP", &pMXSsingleP);
+    tree->SetBranchAddress("MXSempccent",&pMXSempccent);
+    tree->SetBranchAddress("MXSempc3x3", &pMXSempc3x3);
+  }
   LoadTableEP();
 
   MyInit();
@@ -289,13 +303,14 @@ void AT_ReadTree::CheckEP2() {
 
 void AT_ReadTree::Finish() {
   hEvents->Write();
+  hTriggers0->Write();
   hCentrality0->Write();
-
+  hVertex0->Write();
   for (int i = 0; i < 5; i++) {
     hPsi2[i]->Write();
   }
-
   MyFinish();
+
 }
 
 AT_ReadTree::~AT_ReadTree() {
@@ -304,29 +319,36 @@ AT_ReadTree::~AT_ReadTree() {
 }
 
 void AT_ReadTree::Exec() {
+  //std::cout << "BBB" << std::endl;
   hEvents->Fill(0);
   float vtx = fGLB.vtxZ;
   fGLB.cent = 10; //setting centraliy to 10 for everybody
   float cen = fGLB.cent;
   unsigned int trigger = fGLB.trig;
   bool trig = false;
+  if(0x00000001 | trigger) hTriggers0->Fill(0);
+  if(0x00000002 | trigger) hTriggers0->Fill(1);
+  if(0x00000008 | trigger) hTriggers0->Fill(2);
+  if(0x00000010 | trigger) hTriggers0->Fill(3);
   if(trigger & fMask) trig = true;
-  float frac = fGLB.frac;
-
   if(!trig) return;
+
   //if(frac<0.95) return;
   if(TMath::Abs(vtx)>20) return;
   //std::cout << " " << cen << " " << frac << " " << vtx << std::endl;
-
   int bvtx = BinVertex( vtx );
   int bcen = BinCentrality( cen );
   //std::cout << "  " << bcen << " " << bvtx << std::endl;
-
   if(bvtx<0 || bcen<0) return;
+
   hEvents->Fill(1);
   hCentrality0->Fill(cen);
+  hVertex0->Fill(vtx);
 
-  if(fBBCQCal) MakeBBCEventPlanes(bcen,bvtx);
+  if(!fSkipPileUpCuts) {
+  }
+
+  if(fBBCQCal&&!fSkipDetails) MakeBBCEventPlanes(bcen,bvtx);
   MyExec();
 }
 

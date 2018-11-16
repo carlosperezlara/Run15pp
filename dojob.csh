@@ -1,7 +1,8 @@
 #!/bin/tcsh
 
 @ N=$1 + 1
-set A = `head -$N segments.dat| tail -1`
+#set A = `head -$N segments.dat| tail -1`
+set A = `head -$N sss.dat| tail -1`
 echo $A
 @ B=-1
 
@@ -9,7 +10,9 @@ echo $A
 #./Run_BBC_EPC $A $B
 #./Run_PiZero $A $B
 
-./Run_PiZero_EP $A $B 
+./Run_EventChecker $A $B 
+
+#./Run_PiZero_EP $A $B 
 #./Run_PiZero_EP $A $B D0
 #./Run_PiZero_EP $A $B D1
 #./Run_PiZero_EP $A $B A0

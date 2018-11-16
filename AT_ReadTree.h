@@ -24,6 +24,8 @@ class AT_ReadTree : public AnalysisTask {
   void TriggerMask(unsigned int msk) {fMask=msk;}
   void CentralitySelection(float min, float max)
   {fCentralityMin=min; fCentralityMax=max;}
+  void SetSkipDetails() {fSkipDetails = true;}
+  void SkipPileUpCuts() {fSkipPileUpCuts = true;}
 
  private:
   void MakeBBCEventPlanes(int,int);
@@ -34,7 +36,9 @@ class AT_ReadTree : public AnalysisTask {
   int BinCentrality(float);
 
   TH1F *hEvents;
+  TH1F *hTriggers0;
   TH1F *hCentrality0;
+  TH1F *hVertex0;
   TH1F *hPsi2[10]; // Check flatness on each EP calib step
   unsigned int fMask;
   float fCentralityMin;
@@ -65,7 +69,16 @@ class AT_ReadTree : public AnalysisTask {
     Float_t frac;
     UInt_t  trig;
   } MyTreeRegister_t;
+  typedef struct MyTreeRegister2 {
+    Float_t bbcn;
+    Float_t bbcsTmean;
+    Float_t bbcnTmean;
+    Double_t bbcsTrms;
+    Double_t bbcnTrms;
+    UInt_t alltrks;
+  } MyTreeRegister2_t;
   MyTreeRegister_t fGLB;
+  MyTreeRegister2_t fGLB2;
 
   std::vector<qcQ> *pQ1ex;
   std::vector<qcQ> *pQ2ex;
@@ -126,6 +139,9 @@ class AT_ReadTree : public AnalysisTask {
   std::vector<Int_t>   *pMXSflyr;
   std::vector<Float_t> *pMXSsingleD;
   std::vector<Int_t>   *pMXSsingleP;
+
+  bool fSkipDetails;
+  bool fSkipPileUpCuts;
 };
 
 #endif
