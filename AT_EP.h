@@ -22,6 +22,8 @@ class AT_EP : public AnalysisTask {
   float fPtBins[100];
   int fNma;
   float fMassBins[100];
+  TH1F *hQw[4];
+  TH1F *hQ[4];
   TH1F *hEta;
   TH1F *hEta2;
   TH1F *hMass[100];

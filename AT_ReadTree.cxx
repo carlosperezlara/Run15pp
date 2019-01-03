@@ -99,6 +99,9 @@ AT_ReadTree::AT_ReadTree() : AnalysisTask() {
 
   fSkipPileUpCuts = false;
   fSkipDetails = false;
+  fSkipClusters = false;
+  fSkipTracks = false;
+  fSkipShowers = false;
 }
 
 void AT_ReadTree::Init() {
@@ -106,10 +109,10 @@ void AT_ReadTree::Init() {
   fCandidates = ana->GetCandidates();
   fCandidates2= ana->GetCandidates2();
   for(int i=0; i!=4; ++i) fQ[i] = ana->GetQ(i);
-  hEvents = new TH1F("hEvents","hEvents",7,-0.5,6.5);
+  hEvents = new TH1F("hEvents","hEvents",10,-0.5,9.5);
   hEvents->GetXaxis()->SetBinLabel(1,"AllEvents");
   hEvents->GetXaxis()->SetBinLabel(2,"AT_ReadTree");
-  hEvents->GetXaxis()->SetBinLabel(3,"AT_X");
+  hEvents->GetXaxis()->SetBinLabel(3,"AT_ReadTree_PileUp");
 
   hTriggers0 = new TH1F("hTriggers","hTriggers",10,-0.5,9.5);
   hTriggers0->GetXaxis()->SetBinLabel(1,"0x00000001");
@@ -119,7 +122,10 @@ void AT_ReadTree::Init() {
 
   hCentrality0 = new TH1F("hCentrality","hCentrality",100,-0.5,99.5);
   hVertex0 = new TH1F("hVertex","hVertex",100,-40,+40);
-
+  hPileUpRejectionS = new TH2F("hPileUpRejectionS","PileUpRejection;;BBCs",2,-0.5,1.5,100,0.,200.);
+  hPileUpRejectionN = new TH2F("hPileUpRejectionN","PileUpRejection;;BBCn",2,-0.5,1.5,100,0.,200.);
+  hCentralitySelection = new TH2F("hCentralitySelection",";BBCs;BBCn",1000,0.,200.,1000,0.,200.);
+  
   for (int i = 0; i < 5; i++) {
     hPsi2[i] = new TH1F(Form("hPsi2%d", i), Form("2nd order Psi after calib step %d", i), 200, -6.3, 6.3);
   }
@@ -188,6 +194,7 @@ void AT_ReadTree::Init() {
     tree->SetBranchAddress("MXSempc3x3", &pMXSempc3x3);
   }
   LoadTableEP();
+  LoadTableTime();
 
   MyInit();
 }
@@ -306,6 +313,9 @@ void AT_ReadTree::Finish() {
   hTriggers0->Write();
   hCentrality0->Write();
   hVertex0->Write();
+  hPileUpRejectionS->Write();
+  hPileUpRejectionN->Write();
+  hCentralitySelection->Write();
   for (int i = 0; i < 5; i++) {
     hPsi2[i]->Write();
   }
@@ -332,21 +342,33 @@ void AT_ReadTree::Exec() {
   if(0x00000010 | trigger) hTriggers0->Fill(3);
   if(trigger & fMask) trig = true;
   if(!trig) return;
+    float meanS = fGLB2.bbcsTmean;
+    float meanN = fGLB2.bbcnTmean;
+  if( TMath::IsNaN(meanS) || TMath::IsNaN(meanN) ) return;
 
-  //if(frac<0.95) return;
   if(TMath::Abs(vtx)>20) return;
-  //std::cout << " " << cen << " " << frac << " " << vtx << std::endl;
   int bvtx = BinVertex( vtx );
   int bcen = BinCentrality( cen );
-  //std::cout << "  " << bcen << " " << bvtx << std::endl;
   if(bvtx<0 || bcen<0) return;
 
+  float sgnS = fGLB.bbcs;
+  float sgnN = fGLB2.bbcn;
+  hPileUpRejectionS->Fill(0.,sgnS);
+  hPileUpRejectionN->Fill(0.,sgnN);
   hEvents->Fill(1);
+  if(!fSkipPileUpCuts) {
+    double rmsS = fGLB2.bbcsTrms;
+    double rmsN = fGLB2.bbcnTrms;
+    if( TMath::Abs(meanS-meanN+fTime[0]) > 5*0.60 ) return;
+    if( rmsS/fTime[1] + rmsN/fTime[2] > 1.0 ) return;
+  }
+  hPileUpRejectionS->Fill(1.,sgnS);
+  hPileUpRejectionN->Fill(1.,sgnN);
+  hCentralitySelection->Fill(sgnS,sgnN);
+
+  hEvents->Fill(2);
   hCentrality0->Fill(cen);
   hVertex0->Fill(vtx);
-
-  if(!fSkipPileUpCuts) {
-  }
 
   if(fBBCQCal&&!fSkipDetails) MakeBBCEventPlanes(bcen,bvtx);
   MyExec();
@@ -525,7 +547,7 @@ void AT_ReadTree::LoadTableEP( int run ) {
 
   ifstream fin;
   int se, ord, xy, bce, bvt;
-  float tmp;
+  double tmp;
   fin.open( Form("BBC_EPC/tables/BBC_%d.dat",run) );
   std::cout <<  Form("LOADING TABLE1 BBC_EPC/tables/BBC_%d.dat",run) << std::endl;
   int nn=0;
@@ -537,7 +559,7 @@ void AT_ReadTree::LoadTableEP( int run ) {
     int se = (nn/40)%2;//2400)%2;
     int bce = 0; //(nn/40)%60; // centrality
     int bvt = nn%40; // vertex
-    bbcm[se][ord][xy][bce][bvt] = tmp*1e-1;
+    bbcm[se][ord][xy][bce][bvt] = tmp;
   }
   fin.close();
   std::cout << "   BBC ReCenter coefficients loaded: " << nn << std::endl;
@@ -547,13 +569,45 @@ void AT_ReadTree::LoadTableEP( int run ) {
   for(;;++nn) {
     fin >> tmp;
     if(!fin.good()) break;
-    int ord = (nn,2560)%4;//153600)%4; //order
+    int ord = (nn/2560)%4;//153600)%4; //order
     int bce = 0;//(nn/2560)%60; //centrality
     int bcs = (nn/1280)%2; //xy
     int bor = (nn/40)%32; // order of expansion
     int bvt = nn%40; // vertex
-    if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp*1e-3;
-    else bbcs[bor][ord][bce][bvt] = tmp*1e-3;
+    if(bcs==0) bbcc[bor][ord][bce][bvt] = tmp;
+    else bbcs[bor][ord][bce][bvt] = tmp;
   }
   std::cout << "   BBC Flattening coefficients loaded: " << nn << std::endl;
+}
+
+void AT_ReadTree::LoadTableTime( int run ) {
+  if(run<0) {
+    Analysis *ana = Analysis::Instance();
+    run = ana->RunNumber();
+    std::cout << " SEGMENT " << ana->SegmentNumber() << std::endl;
+  }
+  std::cout << " RUN " << run << std::endl;
+  
+  ifstream fin;
+  int irun;
+  float tmp, mean, rmsS, rmsN;
+  fin.open( "EventChecker/TimeConstants.dat" );
+  int nn=0;
+  fTime[0] = -9999;
+  fTime[1] = 1;
+  fTime[2] = 1;
+  for(;;++nn) {
+    fin >> irun >> mean >> tmp >> tmp >> tmp >> rmsS >> tmp >> tmp >> rmsN;
+    if( irun == run ) {
+      fTime[0] = mean;
+      fTime[1] = rmsS;
+      fTime[2] = rmsN;
+      break;
+    }
+    if(!fin.good()) break;
+  }
+  fin.close();
+  std::cout << " Time Constants " << fTime[0] << " " << fTime[1];
+  std::cout << " " << fTime[2] << std::endl;
+  return;
 }

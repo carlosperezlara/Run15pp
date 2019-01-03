@@ -13,9 +13,9 @@ int qcent(int run=424356) {
 	  int nbins = QH->GetXaxis()->GetNbins(); // NVtx
 	  for(int j=0; j!=nbins; ++j) {
 	    h = QH->ProjectionY( Form("%s_P%d",QH->GetName(),j), j+1, j+1 );
-	    float mean = h->GetMean();
+	    double mean = h->GetMean();
 	    if(h->GetEntries()<100) mean = 0;
-	    fout << Form(" %.2f", mean*10);
+	    fout << Form(" %e", mean);
 	  }
 	  fout << endl;
 	}

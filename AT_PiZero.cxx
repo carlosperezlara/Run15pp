@@ -106,7 +106,7 @@ void AT_PiZero::MyExec() {
   //============
   int binvertex = P0_VertexBin(vtxZ);
   if(binvertex<0) return;
-  hEvents->Fill(2);
+  hEvents->Fill(3);
   
   //====== MAIN LOOP ON CLUSTERS ======
   fBuffer.clear();

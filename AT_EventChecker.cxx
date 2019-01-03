@@ -33,10 +33,11 @@ AT_EventChecker::AT_EventChecker() : AT_ReadTree() {
 AT_EventChecker::~AT_EventChecker() {
 }
 void AT_EventChecker::MyInit() {
-  hEvents->GetXaxis()->SetBinLabel(3,"AT_EventChecker init");
-  hEvents->GetXaxis()->SetBinLabel(4,"AT_EventChecker no_errors");
-  hEvents->GetXaxis()->SetBinLabel(5,"AT_EventChecker vtxcomp");
-  hEvents->GetXaxis()->SetBinLabel(6,"AT_EventChecker end");
+  hEvents->GetXaxis()->SetBinLabel(4,"AT_EventChecker init");
+  hEvents->GetXaxis()->SetBinLabel(5,"AT_EventChecker no_errors");
+  hEvents->GetXaxis()->SetBinLabel(6,"AT_EventChecker vtx time");
+  hEvents->GetXaxis()->SetBinLabel(7,"AT_EventChecker rms time");
+  hEvents->GetXaxis()->SetBinLabel(8,"AT_EventChecker energy");
   for(int i=0; i!=2; ++i) {
     hTrackMultiplicity[i] = new TH1F( Form("hTrackMultiplicity%d",i),
 				      Form("hTrack multiplicity %d",i),
@@ -45,28 +46,37 @@ void AT_EventChecker::MyInit() {
 				    Form("hBBC multiplicity %d",i),
 				    100, 0, 200 );
     hBBCTmean[i] = new TH1F( Form("hBBCTimeMean%d",i),
-			     Form("hBBBC mean Time %d; TimeS  -  TimeN  (ns)",i),
-                             100, -0.5, +0.5 );
+			     Form("hBBBC mean Time %d;mean  time  S-N  (a.u.)",i),
+                             100, -5, +5 );
+    hBBCTrms[i] = new TH1F( Form("hBBCTimeRMS%d",i),
+			    Form("hBBBC rms Time %d;rms  time  S+N  (a.u.)"),
+			    1000, 0, +3.0 );
     hBBCTrmsS[i] = new TH1F( Form("hBBCTimeRMS_S%d",i),
-			     Form("hBBBC rms Time South %d;rmsS  (ns)",i),
+			     Form("hBBBC rms Time South %d;rmsS  (a.u.)",i),
                              1000, +0.0, +0.5 );
     hBBCTrmsN[i] = new TH1F( Form("hBBCTimeRMS_N%d",i),
-			     Form("hBBBC rms Time North %d;rmsN  (ns)",i),
+			     Form("hBBBC rms Time North %d;rmsN  (a.u.)",i),
                              1000, +0.0, +0.5 );
+    hBBCTnrmsS[i] = new TH1F( Form("hBBCTimeNRMS_S%d",i),
+			      Form("hBBBC rms Time South %d;norm rmsS  (a.u.)",i),
+			      1000, +0.0, +5 );
+    hBBCTnrmsN[i] = new TH1F( Form("hBBCTimeNRMS_N%d",i),
+			      Form("hBBBC rms Time North %d;norm rmsN  (a.u.)",i),
+			      1000, +0.0, +5 );
     hBBCmeanT[i] = new TH2F( Form("hBBCTimeMean2D%d",i),
-			     Form("hBBBC mean Time %d;sounth  (ns);north  (ns)",i),
+			     Form("hBBBC mean Time %d;meant S  (a.u.);mean N  (a.u.)",i),
                              100, -10, +30, 100, -10, +30 );
     hBBCrmsT[i] = new TH2F( Form("hBBCTimeRMS2D%d",i),
-			    Form("hBBC rms Time %d;rmsS  (ns);rmsN  (ns)",i),
+			    Form("hBBC rms Time %d;rmsS  (a.u.);rmsN  (a.u.)",i),
                             1000, 0.0, 3.0,
                             1000, 0.0, 3.0 );
     hBBCsgn[i] = new TH2F( Form("hBBCSgn2D%d",i),
-			   Form("hBBC signals %d;south;north",i),
-			   100, 0.0, 170,
-			   100, 0.0, 60 );
+			   Form("hBBC signals %d;signal S  (a.u.);signal N  (a.u.)",i),
+			   100, 0.0, 120,
+			   100, 0.0, 120 );
     hBBCsgnD[i] = new TH1F( Form("hBBCSgn%d",i),
-			    Form("hBBC signals %d;south-north",i),
-                            100, -30., +150. );
+			    Form("hBBC signals %d;signal S-N  (a.u.)",i),
+                            100, -30., +30. );
     hBBCvtx[i] = new TH1F( Form("hBBCvtx%d",i),
 			   Form("hBBC Vertex %d;vtxZ  (cm)",i),
 			   100, -30., 30. );
@@ -120,8 +130,11 @@ void AT_EventChecker::MyFinish() {
     hBBCMultiplicity[i]->Write();
     hTrackMultiplicity[i]->Write();
     hBBCTmean[i]->Write();
+    hBBCTrms[i]->Write();
     hBBCTrmsS[i]->Write();
     hBBCTrmsN[i]->Write();
+    hBBCTnrmsS[i]->Write();
+    hBBCTnrmsN[i]->Write();
     hBBCmeanT[i]->Write();
     hBBCrmsT[i]->Write();
     hBBCsgn[i]->Write();
@@ -133,7 +146,6 @@ void AT_EventChecker::MyFinish() {
 }
 void AT_EventChecker::MyExec() {
   //std::cout << "AAAA" << std::endl;
-  hEvents->Fill(2);
   float vtx = fGLB.vtxZ;
   float cen = fGLB.cent;
   int bvtx = BinVertex( vtx );
@@ -145,17 +157,23 @@ void AT_EventChecker::MyExec() {
   float meanN = fGLB2.bbcnTmean;
   float sgnS = fGLB.bbcs;
   float sgnN = fGLB2.bbcn;
+  //if(sgnS>50||sgnS<5) return;
+  //if(sgnN>50||sgnN<5) return;
+  hEvents->Fill(3);
   if( TMath::IsNaN(meanS) || TMath::IsNaN(meanN) ) return;
   if( TMath::IsNaN(rmsS) || TMath::IsNaN(rmsN) ) {
     std::cout << "FUNNYYYY!!!" << std::endl;
     return;
   }
-  hEvents->Fill(3);
+  hEvents->Fill(4);
 
   hBBCvtx[0]->Fill( vtx );
   hBBCTmean[0]->Fill( meanS - meanN );
+  hBBCTrms[0]->Fill( rmsS/fTime[1] + rmsN/fTime[2] );
   hBBCTrmsS[0]->Fill( rmsS );
   hBBCTrmsN[0]->Fill( rmsN );
+  hBBCTnrmsS[0]->Fill( rmsS/fTime[1] );
+  hBBCTnrmsN[0]->Fill( rmsN/fTime[2] );
   hBBCmeanT[0]->Fill( meanS, meanN );
   hBBCrmsT[0]->Fill( rmsS, rmsN );
   hBBCsgn[0]->Fill( sgnS, sgnN );
@@ -166,20 +184,18 @@ void AT_EventChecker::MyExec() {
 
   //if(frac<0.95) return;
 
-  if( TMath::Abs(meanS-meanN) > 5*0.060 ) return;
-  hEvents->Fill(4);
-  double sigma = TMath::Sqrt(rmsS*rmsS + rmsN*rmsN);
-  if( sigma > 0.3 ) return;
-  //if( rmsS < 0.05 ) return;
-  //if( rmsN < 0.05 ) return;
-  //if(cen>5) return;
-  if(sgnS<2) return;
-  if(sgnN<2) return;
+  if( TMath::Abs(meanS-meanN+fTime[0]) > 5*0.60 ) return;
+  hEvents->Fill(5);
+  if( rmsS/fTime[1] + rmsN/fTime[2] > 1 ) return;
+  hEvents->Fill(6);
 
   hBBCvtx[1]->Fill( vtx );
   hBBCTmean[1]->Fill( meanS - meanN );
+  hBBCTrms[1]->Fill( rmsS/fTime[1] + rmsN/fTime[2] );
   hBBCTrmsS[1]->Fill( rmsS );
   hBBCTrmsN[1]->Fill( rmsN );
+  hBBCTnrmsS[1]->Fill( rmsS/fTime[1] );
+  hBBCTnrmsN[1]->Fill( rmsN/fTime[2] );
   hBBCmeanT[1]->Fill( meanS, meanN );
   hBBCrmsT[1]->Fill( rmsS, rmsN );
   hBBCsgn[1]->Fill( sgnS, sgnN );
@@ -188,5 +204,5 @@ void AT_EventChecker::MyExec() {
   hBBCMultiplicity[1]->Fill( sgnS + sgnN );
   hFrac[1]->Fill( frac );
 
-  hEvents->Fill(5);
+  hEvents->Fill(7);
 }

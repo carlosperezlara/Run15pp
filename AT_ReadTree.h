@@ -30,6 +30,7 @@ class AT_ReadTree : public AnalysisTask {
  private:
   void MakeBBCEventPlanes(int,int);
   void LoadTableEP(int run=-1);
+  void LoadTableTime(int run=-1);
 
  protected:
   int BinVertex(float);
@@ -38,6 +39,9 @@ class AT_ReadTree : public AnalysisTask {
   TH1F *hEvents;
   TH1F *hTriggers0;
   TH1F *hCentrality0;
+  TH2F *hPileUpRejectionS;
+  TH2F *hPileUpRejectionN;
+  TH2F *hCentralitySelection;
   TH1F *hVertex0;
   TH1F *hPsi2[10]; // Check flatness on each EP calib step
   unsigned int fMask;
@@ -55,12 +59,13 @@ class AT_ReadTree : public AnalysisTask {
   float Psi2_BBC;
   float Psi3_BBC;
   float Psi4_BBC;
-  float bbcm[2][6][2][60][40]; //se ord xy bcen bvtx
-  float bbcc[32][4][60][40]; //har ord bcen bvtx
-  float bbcs[32][4][60][40]; //har ord bcen bvtx
-  float fMXm[8][6][2][60][40]; //se ord xy bcen bvtx
-  float fMXc[32][4][60][40]; //har ord bcen bvtx
-  float fMXs[32][4][60][40]; //har ord bcen bvtx
+  double bbcm[2][6][2][60][40]; //se ord xy bcen bvtx
+  double bbcc[32][4][60][40]; //har ord bcen bvtx
+  double bbcs[32][4][60][40]; //har ord bcen bvtx
+  double fMXm[8][6][2][60][40]; //se ord xy bcen bvtx
+  double fMXc[32][4][60][40]; //har ord bcen bvtx
+  double fMXs[32][4][60][40]; //har ord bcen bvtx
+  float fTime[3]; //mean rmsS rmsN
 
   typedef struct MyTreeRegister {
     Float_t vtxZ;
@@ -142,6 +147,9 @@ class AT_ReadTree : public AnalysisTask {
 
   bool fSkipDetails;
   bool fSkipPileUpCuts;
+  bool fSkipClusters;
+  bool fSkipTracks;
+  bool fSkipShowers;
 };
 
 #endif

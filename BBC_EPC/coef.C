@@ -1,7 +1,7 @@
 int coef(int run=454777) {
   TFile *file = new TFile( Form("out/run%d.root",run) );
   TProfile2D *QH;
-  float coe;
+  double coe;
   ofstream fout( Form("tables/BBC_A_%d.dat",run) );
   for(int ord=0; ord!=4; ++ord) {
     for(int i=0; i!=1; ++i) {
@@ -18,7 +18,7 @@ int coef(int run=454777) {
 	  if( TMath::IsNaN( coe ) ) {
 	    cout << "ERROR IN " << QH->GetName() << " bins " << j+1 << " " << in+1 << endl;
 	  }
-	  fout << Form(" %.2f", coe*1e+3);
+	  fout << Form(" %e", coe);
 	}
 	fout << endl;
       }
@@ -36,7 +36,7 @@ int coef(int run=454777) {
 	  if( TMath::IsNaN( coe ) ) {
 	    cout << "ERROR IN " << QH->GetName() << " bins " << j+1 << " " << in+1 << endl;
 	  }
-	  fout << Form(" %.2f", coe*1e+3);
+	  fout << Form(" %e", coe);
 	}
 	fout << endl;
       }

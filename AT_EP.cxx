@@ -61,6 +61,12 @@ void AT_EP::Init() {
     hPsi[n] = new TH1F( Form("hPSI%d",n),
 			Form("hPSI%d;Mass",n),
 			120, -TMath::TwoPi(), +TMath::TwoPi() );
+    hQw[n] = new TH1F( Form("hQw%d",n),
+		       Form("hQw%d;Qw",n),
+		       120, 0, 50 );
+    hQ[n] = new TH1F( Form("hQ%d",n),
+		      Form("hQ%d;|Q|/sqrt(w)",n),
+		      120, 0, 10 );
   }
 
 }
@@ -78,6 +84,8 @@ void AT_EP::Finish() {
   }
   for(int n=0; n!=4; ++n) {
     hPsi[n]->Write();
+    hQw[n]->Write();
+    hQ[n]->Write();
   }
 }
 
@@ -86,6 +94,8 @@ void AT_EP::Exec() {
 
   for(int ord=0; ord!=4; ++ord) {
     hPsi[ord]->Fill( fQ[ord]->Psi2Pi() );
+    hQw[ord]->Fill( fQ[ord]->M() );
+    hQ[ord]->Fill( fQ[ord]->Reduced() );
   }
 
   // CANDIDATES 1

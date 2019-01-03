@@ -20,8 +20,11 @@ class AT_EventChecker : public AT_ReadTree {
   TH1F *hTrackMultiplicity[2];
   TH1F *hBBCMultiplicity[2];
   TH1F *hBBCTmean[2];
+  TH1F *hBBCTrms[2];
   TH1F *hBBCTrmsS[2];
   TH1F *hBBCTrmsN[2];
+  TH1F *hBBCTnrmsN[2];
+  TH1F *hBBCTnrmsS[2];
   TH2F *hBBCmeanT[2];
   TH2F *hBBCrmsT[2];
   TH2F *hBBCsgn[2];
