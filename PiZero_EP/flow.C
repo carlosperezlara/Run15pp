@@ -1,12 +1,17 @@
 //float res[5] = {0.161,0.107,0.064,0.042,0.107};
 //float res[5] = {0.161,0.107*1.2,0.064,0.042,0.107};
 float res[5] = {1,1,1,1,1};
-const int nptbins = 22; //14
-float ptbins[23] = {1.0, 1.1, 1.2, 1.3, 1.4,
-		    1.5, 1.6, 1.7, 1.8, 2.0,
-		    2.2, 2.4, 2.6, 2.8, 3.0,
-		    3.4, 3.8, 4.4, 5.0, 6.0,
-		    8.0, 10., 20.};
+const int nptbins = 12;//9; //22; //14
+float ptbins[13] = {1.0, 1.2, 1.4, 1.7, 2.0,
+		    3.0, 4.0, 5.0,
+		    6.0, 8.0, 10., 15., 20.};
+//float ptbins[10] = {1.0, 1.4, 2.0, 3.0, 5.0,
+//		    6.0, 8.0, 10., 15., 20.};
+//float ptbins[23] = {1.0, 1.1, 1.2, 1.3, 1.4,
+//		    1.5, 1.6, 1.7, 1.8, 2.0,
+//		    2.2, 2.4, 2.6, 2.8, 3.0,
+//		    3.4, 3.8, 4.4, 5.0, 6.0,
+//		    8.0, 10., 20.};
 //float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
 //		    1.7, 1.9, 2.2, 2.5, 3.0,
 //		    4.0, 6.0, 10., 15., 20.};
@@ -106,7 +111,7 @@ void LoadJustSys( TString cut, float v[2][10][50]) { //v[0MB;1ERT][ORD][PTB]
 }
 //=======================================
 void LoadFile(TString cut) {
-  file = new TFile( Form("all%s.root",cut.Data()) );
+  file = new TFile( Form("out/all%s.root",cut.Data()) );
 }
 //=======================================
 void CreateBgr(int ptb) {
@@ -212,7 +217,7 @@ void FitVnQuad(bool quiet=true,float min=-1,float max=-1) {
   FitVn(quiet,"R",min,max);
 }
 //=======================================
-int flow(TString cut="",int ptfirst=0, int ptlast=11) {
+int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   gStyle->SetOptStat(0);
   LoadFile(cut);
   float vny1[5][nptbins], vne1[5][nptbins];
@@ -374,9 +379,9 @@ int flow(TString cut="",int ptfirst=0, int ptlast=11) {
   main6->Divide(2,1);
 
   TGraphErrors *gv1[5], *gv2[5], *gv3[5];
-  float ybin[5][2] = { {-0.04, 0},
-		       {-0.01, +0.01},
-		       {-0.004, +0.004},
+  float ybin[5][2] = { {-0.060, 0},
+		       {-0.002, +0.004},
+		       {-0.010, +0.010},
 		       {-0.004, +0.004},
 		       {-0.004, +0.004} };
   TString vss[5] = {"< Cos #varphi-#Psi_{1} >",

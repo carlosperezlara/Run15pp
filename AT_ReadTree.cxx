@@ -113,6 +113,9 @@ void AT_ReadTree::Init() {
   hEvents->GetXaxis()->SetBinLabel(1,"AllEvents");
   hEvents->GetXaxis()->SetBinLabel(2,"AT_ReadTree");
   hEvents->GetXaxis()->SetBinLabel(3,"AT_ReadTree_PileUp");
+  hEvents->GetXaxis()->SetBinLabel(4,"AT_ReadTree");
+  hEvents->GetXaxis()->SetBinLabel(5,"AT_ReadTree");
+  hEvents->GetXaxis()->SetBinLabel(6,"AT_ReadTree");
 
   hTriggers0 = new TH1F("hTriggers","hTriggers",10,-0.5,9.5);
   hTriggers0->GetXaxis()->SetBinLabel(1,"0x00000001");
@@ -370,7 +373,7 @@ void AT_ReadTree::Exec() {
   hCentrality0->Fill(cen);
   hVertex0->Fill(vtx);
 
-  if(fBBCQCal&&!fSkipDetails) MakeBBCEventPlanes(bcen,bvtx);
+  if(fBBCQCal&&!fSkipDetails) MakeBBCEventPlanes(0,bvtx);
   MyExec();
 }
 
