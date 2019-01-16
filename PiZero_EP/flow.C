@@ -1,21 +1,24 @@
 //float res[5] = {0.161,0.107,0.064,0.042,0.107};
 //float res[5] = {0.161,0.107*1.2,0.064,0.042,0.107};
 float res[5] = {1,1,1,1,1};
-const int nptbins = 12;//9; //22; //14
+const int nptbins = 12;
 float ptbins[13] = {1.0, 1.2, 1.4, 1.7, 2.0,
-		    3.0, 4.0, 5.0,
-		    6.0, 8.0, 10., 15., 20.};
-//float ptbins[10] = {1.0, 1.4, 2.0, 3.0, 5.0,
-//		    6.0, 8.0, 10., 15., 20.};
+                    3.0, 4.0, 5.0,
+                    6.0, 8.0, 10., 15., 20.};
+//const int nptbins = 27;//22;
+//float ptbins[28] = {0.5, 0.6, 0.7, 0.8, 0.9,
+//		    1.0, 1.1, 1.2, 1.3, 1.4,
+//		    1.5, 1.6, 1.7, 1.8, 2.0,
+//		    2.2, 2.4, 2.6, 2.8, 3.0,
+//		    3.4, 3.8, 4.4, 5.0, 6.0,
+//		    8.0, 10., 20.};
 //float ptbins[23] = {1.0, 1.1, 1.2, 1.3, 1.4,
 //		    1.5, 1.6, 1.7, 1.8, 2.0,
 //		    2.2, 2.4, 2.6, 2.8, 3.0,
 //		    3.4, 3.8, 4.4, 5.0, 6.0,
 //		    8.0, 10., 20.};
-//float ptbins[15] = {1.0, 1.1, 1.2, 1.3, 1.5,
-//		    1.7, 1.9, 2.2, 2.5, 3.0,
-//		    4.0, 6.0, 10., 15., 20.};
 float meanPi0;
+int noBGRstartingFROM = 6;
 
 TH1F *tot; // they must be loaded
 TF1 *sgn; // an actual fit is attempted
@@ -28,6 +31,9 @@ TProfile *hv;
 TF1 *fitv;
 
 Double_t SoverN(Double_t *x, Double_t *p) { // requires TOT and SGN
+  // TOT is a histogram with the inv mass distribution
+  // SGN is a TF1 with the gaussian parametrization of the signal
+  // note the finer bins in TOT the better
   Int_t bin = tot->GetXaxis()->FindBin( x[0] );
   Double_t xmin = tot->GetXaxis()->GetBinLowEdge(bin);
   Double_t wid = tot->GetXaxis()->GetBinWidth(bin);
@@ -37,6 +43,9 @@ Double_t SoverN(Double_t *x, Double_t *p) { // requires TOT and SGN
 }
 //=======================================
 Double_t Significance(double xmin, double xmax) { // requires TOT and SGN
+  // TOT is a histogram with the inv mass distribution
+  // SGN is a TF1 with the gaussian parametrization of the signal
+  // note the finer bins in TOT the better
   Int_t bin0 = tot->GetXaxis()->FindBin( xmin+1e-6 );
   Int_t bin1 = tot->GetXaxis()->FindBin( xmax-1e-6 );
   Double_t nnn = tot->Integral(bin0,bin1);
@@ -111,12 +120,12 @@ void LoadJustSys( TString cut, float v[2][10][50]) { //v[0MB;1ERT][ORD][PTB]
 }
 //=======================================
 void LoadFile(TString cut) {
-  file = new TFile( Form("out/all%s.root",cut.Data()) );
+  file = new TFile( Form("allfiles/all%s.root",cut.Data()) );
 }
 //=======================================
 void CreateBgr(int ptb) {
   hm = (TH1F*) file->Get( Form("hMass_PB%d",ptb) );
-  hm->GetYaxis()->SetTitle("counts");
+  //hm->GetYaxis()->SetTitle("counts");
   int bin10 = hm->GetXaxis()->FindBin( 0.050 );
   int bin20 = hm->GetXaxis()->FindBin( 0.100 );
   float counts1L = hm->Integral(bin10,bin20);
@@ -127,6 +136,16 @@ void CreateBgr(int ptb) {
   hmm = (TH1F*) file->Get( Form("hMass2_PB%d",ptb) );
   hmmL = (TH1F*) hmm->Clone( Form("hMassL_PB%d",ptb) );
   hmmR = (TH1F*) hmm->Clone( Form("hMassR_PB%d",ptb) );
+  style(hm,kBlue-3,0.7);
+  style(hmmL,kYellow-3);
+  style(hmmR,kYellow-3);
+  style(hmm,kRed-3);
+  if(ptb>noBGRstartingFROM) {
+    hmm->Reset();
+    hmmL->Reset();
+    hmmL->Reset();
+    return;
+  }
   float counts2L = hmm->Integral(bin10,bin20);
   float counts2R = hmm->Integral(bin11,bin21);
   hmm->Reset();
@@ -134,7 +153,7 @@ void CreateBgr(int ptb) {
   hmmR->Scale(counts1R/counts2R);
   int thL = hm->GetXaxis()->FindBin( 0.110 );
   int thR = hm->GetXaxis()->FindBin( 0.166 );
-  for(int iii=0; iii!=hmm->GetXaxis()->GetNbins(); ++iii) {
+  for(int iii=0; iii!=hmm->GetXaxis()->GetNbins()+2; ++iii) { //under and over flows
     float fracL, fracR;
     if(iii<thL) {
       fracL = 1.0;
@@ -150,10 +169,6 @@ void CreateBgr(int ptb) {
 			fracL*hmmL->GetBinContent(iii) + 
 			fracR*hmmR->GetBinContent(iii) );
   }
-  style(hm,kBlue-3,0.7);
-  style(hmmL,kYellow-3);
-  style(hmmR,kYellow-3);
-  style(hmm,kRed-3);
 }
 //=======================================
 void FitSignal(int ptb ) {
@@ -164,15 +179,14 @@ void FitSignal(int ptb ) {
   fit->SetParameter(0,100);
   fit->SetParameter(1,0.139);
   fit->SetParameter(2,0.01);  fit->SetParLimits(2,0.001,0.1);
-  hmS->Fit( fit, "NWR", "", 0.115, 0.155 );
-  hmS->Fit( fit, "NWR", "", 0.115, 0.155 );
+  hmS->Fit( fit, "QNWWRI", "", 0.115, 0.155 );
+  hmS->Fit( fit, "QNWWRI", "", 0.115, 0.155 );
   meanPi0 = fit->GetParameter(1);
 }
 //=======================================
 void LoadVnProfileAndFit(int ptb, int ord, int rebin=1) {
   hv = (TProfile*) file->Get( Form("hCos%dDP_PB%d",ord,ptb) );
   hv->Rebin( rebin );
-  hv->Dump();
   fitv = new TF1( Form("fitvn_PT%d_ORD%d",ptb,ord), myFunction, 0.5, 0.25, 4 );
 }
 //=======================================
@@ -217,7 +231,7 @@ void FitVnQuad(bool quiet=true,float min=-1,float max=-1) {
   FitVn(quiet,"R",min,max);
 }
 //=======================================
-int flow(TString cut="",int ptfirst=0, int ptlast=7) {
+int flow(TString cut="NOM",int ptfirst=0, int ptlast=8) {
   gStyle->SetOptStat(0);
   LoadFile(cut);
   float vny1[5][nptbins], vne1[5][nptbins];
@@ -239,19 +253,24 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   tex2->SetTextSize(0.1);
   tex2->SetTextColor(kOrange-3);
   for(int ptb=ptfirst; ptb!=ptlast; ++ptb) {
-    main[ptb] = new TCanvas( Form("pdf/%s_CANVAS_PTB%d",cut.Data(), ptb), Form("CANVAS_PTB%d",ptb) );
-    main[ptb]->SetLeftMargin(0.11);
-    main[ptb]->SetBottomMargin(0.3);
-    main[ptb]->Divide(1,6,0,0);
-    main2[ptb] = new TCanvas( Form("pdf/%s_CANVAS2_PTB%d",cut.Data(),ptb), Form("CANVAS2_PTB%d",ptb) );
-    main2[ptb]->SetLeftMargin(0.10);
-    main2[ptb]->SetBottomMargin(0.2);
-    main2[ptb]->Divide(1,2,0,0);
-    main3[ptb] = new TCanvas( Form("pdf/%s_CANVAS3_PTB%d",cut.Data(),ptb), Form("CANVAS3_PTB%d",ptb) );
-    main3[ptb]->SetLeftMargin(0.11);
-    main3[ptb]->SetBottomMargin(0.3);
-    main3[ptb]->Divide(1,3,0,0);
+    main[ptb-ptfirst] = new TCanvas( Form("pdf/%s_CANVAS_PTB%d",cut.Data(), ptb), Form("CANVAS_PTB%d",ptb) );
+    main[ptb-ptfirst]->SetLeftMargin(0.11);
+    main[ptb-ptfirst]->SetBottomMargin(0.3);
+    main[ptb-ptfirst]->Divide(1,6,0,0);
+    main2[ptb-ptfirst] = new TCanvas( Form("pdf/%s_CANVAS2_PTB%d",cut.Data(),ptb), Form("CANVAS2_PTB%d",ptb) );
+    main2[ptb-ptfirst]->SetLeftMargin(0.10);
+    main2[ptb-ptfirst]->SetBottomMargin(0.2);
+    main2[ptb-ptfirst]->Divide(1,2,0,0);
+    main3[ptb-ptfirst] = new TCanvas( Form("pdf/%s_CANVAS3_PTB%d",cut.Data(),ptb), Form("CANVAS3_PTB%d",ptb) );
+    main3[ptb-ptfirst]->SetLeftMargin(0.11);
+    main3[ptb-ptfirst]->SetBottomMargin(0.3);
+    main3[ptb-ptfirst]->Divide(1,3,0,0);
   } 
+  TCanvas *sgn_ori = new TCanvas("sgn_ori","sgn_ori",800,600);
+  sgn_ori->Divide(5,5);
+  TCanvas *sgn_sub = new TCanvas("sgn_sub","sgn_sub",800,600);
+  sgn_sub->Divide(5,5);
+  
   TString str[5] = {"C(#varphi - #Psi_{1})",
 		    "C2(#varphi - #Psi_{2})",
 		    "C3(#varphi - #Psi_{3})",
@@ -266,29 +285,55 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   for(int ptb=ptfirst; ptb!=ptlast; ++ptb) {
     CreateBgr(ptb);//,hm,hmm,hmmL,hmmR);
     FitSignal(ptb);//,hm,hmm,hmS,fit);
-
     // setting global sources
     tot = hm;
     sgn = fit;
 
-    main2[ptb]->cd(1);
+    main2[ptb-ptfirst]->cd(1);
+    ////
     hm->DrawCopy();
     hmmL->DrawCopy("same");
     hmmR->DrawCopy("same");
     hmm->DrawCopy("same");
-    tex2->DrawTextNDC( 0.6, 0.7, Form("pT  [  %.1f - %.1f ]  GeV/c",ptbins[ptb],ptbins[ptb+1]) );
-    main2[ptb]->cd(2);
-    gaus0n[ptb] = fit->GetParameter(0)/(ptbins[ptb+1]-ptbins[ptb]); gaus0ne[ptb] = fit->GetParError(0);
-    gaus0[ptb] = fit->GetParameter(0); gaus0e[ptb] = fit->GetParError(0);
-    gaus1[ptb] = fit->GetParameter(1); gaus1e[ptb] = fit->GetParError(1);
-    gaus2[ptb] = fit->GetParameter(2); gaus2e[ptb] = fit->GetParError(2);
+    tex2->DrawTextNDC( 0.6, 0.7, Form("pT  [  %.1f - %.1f ]  GeV/c",
+				      ptbins[ptb],ptbins[ptb+1]) );
+    ////
+    sgn_ori->cd(ptb-ptfirst+1);
+    hm->DrawCopy();
+    hmmL->DrawCopy("same");
+    hmmR->DrawCopy("same");
+    hmm->DrawCopy("same");
+    tex2->DrawTextNDC( 0.25, 0.91, Form("[  %.1f - %.1f ]  GeV/c",
+                                      ptbins[ptb],ptbins[ptb+1]) );
+    ////
+    gaus0n[ptb-ptfirst] = fit->GetParameter(0)/(ptbins[ptb+1]-ptbins[ptb]);
+    gaus0ne[ptb-ptfirst] = TMath::Sqrt(fit->GetParameter(0));
+    //gaus0ne[ptb-ptfirst] = TMath::Sqrt(fit->GetParameter(0))/(ptbins[ptb+1]-ptbins[ptb]);
+    gaus0[ptb-ptfirst] = fit->GetParameter(0);
+    gaus0e[ptb-ptfirst] = fit->GetParError(0);
+    gaus1[ptb-ptfirst] = fit->GetParameter(1);
+    gaus1e[ptb-ptfirst] = fit->GetParError(1);
+    gaus2[ptb-ptfirst] = fit->GetParameter(2);
+    gaus2e[ptb-ptfirst] = fit->GetParError(2);
 
+    main2[ptb-ptfirst]->cd(2);
+    ////
     hmS->DrawCopy();
     fit->Draw("same");
     tex2->DrawTextNDC( 0.6, 0.7, Form("mu = %.1f MeV/c2",1e3*fit->GetParameter(1)) );
     tex2->DrawTextNDC( 0.6, 0.6, Form("sgm = %.1f MeV/c2",1e3*fit->GetParameter(2)) );
+    ////
+    sgn_sub->cd(ptb-ptfirst+1);
+    hmS->DrawCopy();
+    fit->Draw("same");
+    tex2->DrawTextNDC( 0.25, 0.91, Form("[  %.1f - %.1f ]  GeV/c",
+                                      ptbins[ptb],ptbins[ptb+1]) );
+    tex2->DrawTextNDC( 0.55, 0.7, Form("#mu %.1f",1e3*fit->GetParameter(1)) );
+    tex2->DrawTextNDC( 0.55, 0.6, Form("#sigma %.1f",1e3*fit->GetParameter(2)) );
 
-    main3[ptb]->cd(1);
+    //continue;
+
+    main3[ptb-ptfirst]->cd(1);
     style(hm,kBlue-3,0.7);
     hm->DrawCopy();
     hmm->DrawCopy("same");
@@ -296,7 +341,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
     tex2->DrawTextNDC( 0.6, 0.7, Form("pT  [  %.1f - %.1f ]  GeV/c",ptbins[ptb],ptbins[ptb+1]) );
     tex2->SetTextSize(0.1);
   
-    main[ptb]->cd(1);
+    main[ptb-ptfirst]->cd(1);
     style(hm,kBlue-3,1.4);
     hm->DrawCopy();
     hmm->DrawCopy("same");
@@ -307,38 +352,37 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
     fsgnout << sgn->Integral( gaus1[ptb] - 3*gaus2[ptb], gaus1[ptb] + 3*gaus2[ptb] ) << endl;
 
     TF1 *fitcheck = new TF1( Form("SoN%d",ptb), SoverN, 0,1 );
-    main2[ptb]->cd(2);
+    main2[ptb-ptfirst]->cd(2);
     fitcheck->Draw("same");
     cout << "******* PT BIN " << ptb << " [" << ptbins[ptb] << ", " << ptbins[ptb+1] << "]" << endl;
     for(int ord=0; ord!=5; ++ord) {
       cout << "    ** Fitting ORD BIN " << ord << endl;
       LoadVnProfileAndFit(ptb,ord); // hv,fitv
       //hv->Rebin(5);
-      main[ptb]->cd(2+ord);
+      main[ptb-ptfirst]->cd(2+ord);
       hv->GetYaxis()->SetTitle( Form( "%s",str[ord].Data() ) );
       //==
       FitVnLine();
-      vny2[ord][ptb] = fitv->GetParameter(0)/res[ord];
-      vne2[ord][ptb] = fitv->GetParError(0)/res[ord];
+      vny2[ord][ptb-ptfirst] = fitv->GetParameter(0)/res[ord];
+      vne2[ord][ptb-ptfirst] = fitv->GetParError(0)/res[ord];
       //==
       FitVnConst();
-      vny3[ord][ptb] = fitv->GetParameter(0)/res[ord];
-      vne3[ord][ptb] = fitv->GetParError(0)/res[ord];
+      vny3[ord][ptb-ptfirst] = fitv->GetParameter(0)/res[ord];
+      vne3[ord][ptb-ptfirst] = fitv->GetParError(0)/res[ord];
       //==
-      continue;
       FitVnQuad();
-      vny1[ord][ptb] = fitv->GetParameter(0)/res[ord];
-      vne1[ord][ptb] = fitv->GetParError(0)/res[ord];
+      vny1[ord][ptb-ptfirst] = fitv->GetParameter(0)/res[ord];
+      vne1[ord][ptb-ptfirst] = fitv->GetParError(0)/res[ord];
       style((TH1F*)hv,kGreen-3,ord==4?1.0:1.4);
       hv->DrawCopy();
       if(ord>2) continue;
-      main3[ptb]->cd(2+ord);
+      main3[ptb-ptfirst]->cd(2+ord);
       style((TH1F*)hv,kGreen-3,ord==1?0.60:0.90);
       hv->DrawCopy();
     }
-    main[ptb]->SaveAs(  Form("%s.pdf", main[ptb]->GetName()  ), "pdf"  );
-    main2[ptb]->SaveAs( Form("%s.pdf", main2[ptb]->GetName() ), "pdf"  );
-    main3[ptb]->SaveAs( Form("%s.pdf", main3[ptb]->GetName() ), "pdf"  );
+    main[ptb-ptfirst]->SaveAs(  Form("%s.pdf", main[ptb-ptfirst]->GetName()  ), "pdf"  );
+    main2[ptb-ptfirst]->SaveAs( Form("%s.pdf", main2[ptb-ptfirst]->GetName() ), "pdf"  );
+    main3[ptb-ptfirst]->SaveAs( Form("%s.pdf", main3[ptb-ptfirst]->GetName() ), "pdf"  );
   }
   int nbins = ptlast - ptfirst;
   fsgnout.close();
@@ -348,17 +392,17 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   for(int ord=0; ord!=5; ++ord) {
     fout << ord << " " << nbins << endl;
     for(int ptb=ptfirst; ptb!=ptlast; ++ptb) {
-      fout << ptbins[ptb] << " " << ptbins[ptb+1] << " ";
-      fout << vny1[ord][ptb] << " " << vne1[ord][ptb] << " ";
-      fout << vny2[ord][ptb] << " " << vne2[ord][ptb] << " ";
-      fout << vny3[ord][ptb] << " " << vne3[ord][ptb] << endl;
+      fout << ptbins[ptb-ptfirst] << " " << ptbins[ptb-ptfirst+1] << " ";
+      fout << vny1[ord][ptb-ptfirst] << " " << vne1[ord][ptb-ptfirst] << " ";
+      fout << vny2[ord][ptb-ptfirst] << " " << vne2[ord][ptb-ptfirst] << " ";
+      fout << vny3[ord][ptb-ptfirst] << " " << vne3[ord][ptb-ptfirst] << endl;
     }
   }
   fout.close();
 
   float zzz[30] = {0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0};
   float xxx[30];
-  for(int i=ptfirst; i!=ptlast; ++i) xxx[i] = 0.5*(ptbins[i] + ptbins[i+1]);
+  for(int i=ptfirst; i!=ptlast; ++i) xxx[i-ptfirst] = 0.5*(ptbins[i] + ptbins[i+1]);
 
   TCanvas *main4 = new TCanvas(Form("pdf/%s_pi0",cut.Data()),"pi0");
   main4->Divide(3,1);
@@ -366,10 +410,50 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   TGraphErrors *gg0 = new TGraphErrors(nbins,xxx,gaus0,zzz,gaus0e);
   TGraphErrors *gg1 = new TGraphErrors(nbins,xxx,gaus1,zzz,gaus1e);
   TGraphErrors *gg2 = new TGraphErrors(nbins,xxx,gaus2,zzz,gaus2e);
+  TF1 *yieldexpal = new TF1("yieldexpal","(2-[0])*[1]*TMath::Exp(-[1]*x)",0,20);
+  float fitRmin = 2.5;
+  float fitRmax = 15.0;
+  TF1 *yieldexpfr = new TF1("yieldexpfr","(2-[0])*[1]*TMath::Exp(-[1]*x)",fitRmin,fitRmax);
   main4->cd(1)->SetLogy(1); gg0n->Draw("AP"); gg0n->SetMarkerStyle(20);
-  main4->cd(1); gg0->Draw("*SAME");
-  main4->cd(2); gg1->Draw("A*"); gg1->GetYaxis()->SetRangeUser(0.130,0.140);
-  main4->cd(3); gg2->Draw("A*"); gg2->GetYaxis()->SetRangeUser(0,0.013);
+  //main4->cd(1); gg0->Draw("*SAME");
+  main4->cd(2); gg1->Draw("AP");
+  main4->cd(3); gg2->Draw("AP");
+  main4->cd(1);
+  gg0n->GetXaxis()->SetTitle("pT  GeV/c");
+  gg0->GetXaxis()->SetTitle("pT  GeV/c");
+  gg1->GetXaxis()->SetTitle("pT  GeV/c");
+  gg2->GetXaxis()->SetTitle("pT  GeV/c");
+  gg0n->SetMarkerColor(kGreen-3);
+  gg0->SetMarkerColor(kGreen-3);
+  gg1->SetMarkerColor(kGreen-3);
+  gg2->SetMarkerColor(kGreen-3);
+  gg0n->SetMarkerStyle(24);
+  gg1->SetMarkerStyle(24);
+  gg2->SetMarkerStyle(24);
+  gg0n->SetMarkerSize(1.2);
+  gg1->SetMarkerSize(1.2);
+  gg2->SetMarkerSize(1.2);
+  gg0n->Fit("yieldexpfr","R","",fitRmin,fitRmax);
+  yieldexpal->SetParameter(0, yieldexpfr->GetParameter(0));
+  yieldexpal->SetParameter(1, yieldexpfr->GetParameter(1));
+  yieldexpal->SetLineColor(kBlue-3);
+  yieldexpal->SetLineStyle(6);
+  yieldexpfr->SetLineColor(kRed-3);
+  yieldexpal->SetLineWidth(4);
+  yieldexpfr->SetLineWidth(4);
+  yieldexpal->Draw("same");
+  yieldexpfr->Draw("same");
+  gg0n->SetTitle("Raw  N / #Delta pt");
+  gg1->SetTitle("mean");
+  gg2->SetTitle("sigma");
+  gg0n->GetYaxis()->SetRangeUser(1e-4,1e8);
+  gg1->GetYaxis()->SetRangeUser(0.135,0.139);
+  gg2->GetYaxis()->SetRangeUser(0.008,0.013);
+  tex2->SetTextSize(0.1);
+  tex2->DrawLatexNDC( 0.25, 0.85, Form("1/#lambda = %.0f MeV",1e3/yieldexpfr->GetParameter(1)) );
+  //tex2->DrawLatexNDC( 0.4, 0.80, Form("q = %.2f",yieldexpfr->GetParameter(0)) );
+  tex2->SetTextSize(0.1);
+
   main4->SaveAs(  Form("%s.pdf", main4->GetName()  ), "pdf"  );
 
   TCanvas *main5 = new TCanvas(Form("pdf/%s_vn",cut.Data()),"vn");
@@ -379,16 +463,21 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
   main6->Divide(2,1);
 
   TGraphErrors *gv1[5], *gv2[5], *gv3[5];
-  float ybin[5][2] = { {-0.060, 0},
-		       {-0.002, +0.004},
-		       {-0.010, +0.010},
-		       {-0.004, +0.004},
-		       {-0.004, +0.004} };
-  TString vss[5] = {"< Cos #varphi-#Psi_{1} >",
-		    "< Cos 2(#varphi-#Psi_{2}) >",
-		    "< Cos 3(#varphi-#Psi_{3}) >",
-		    "< Cos 4(#varphi-#Psi_{4}) >",
-		    "< Cos 4(#varphi-#Psi_{2}) >"};
+  float ybin[5][2] = { {-0.05, 0},
+		       {0, +0.035},
+		       {-0.02, +0.02},
+		       {-0.04, +0.02},
+		       {-0.03, +0.02} };
+  //  TString vss[5] = {"< Cos #varphi-#Psi_{1} >",
+  //		    "< Cos 2(#varphi-#Psi_{2}) >",
+  //		    "< Cos 3(#varphi-#Psi_{3}) >",
+  //		    "< Cos 4(#varphi-#Psi_{4}) >",
+  //		    "< Cos 4(#varphi-#Psi_{2}) >"};
+  TString vss[5] = {"c_{1} (#pi^{0}, BBC)",
+		    "c_{2} (#pi^{0}, BBC)",
+		    "c_{3} (#pi^{0}, BBC)",
+		    "c_{4} (#pi^{0}, BBC)",
+		    "c_{4,2} (#pi^{0}, BBC)"};
   for(int ord=0; ord!=5; ++ord) {
     gv1[ord] = new TGraphErrors(nbins,xxx,vny1[ord],zzz,vne1[ord]);
     gv2[ord] = new TGraphErrors(nbins,xxx,vny2[ord],zzz,zzz);//vne2[ord]);
@@ -401,7 +490,7 @@ int flow(TString cut="",int ptfirst=0, int ptlast=7) {
     main5->cd(ord+1);
     TH2F *axis = new TH2F( Form("tmp%d",ord),
 			   Form("%s;p_{T}  [GeV/c]",vss[ord].Data()),
-			   100,0,20.0, 100,ybin[ord][0],ybin[ord][1]);
+			   100,0,8.0, 100,ybin[ord][0],ybin[ord][1]);
     axis->Draw();
     gv1[ord]->Draw("PSAME");
     gv2[ord]->Draw("PSAME");
